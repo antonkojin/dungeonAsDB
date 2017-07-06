@@ -1,0 +1,5 @@
+DB_NAME=myproject_web
+DB_USER=myproject_web
+DB_PASS=postgres
+DB_SERVICE=postgres
+DB_PORT=5432
