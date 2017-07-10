@@ -1,22 +1,13 @@
 version: '3'
 services:
-  web:
-    image: nginx
-    expose: 
-      - 80
-    ports:
-      - 80:80
-    volumes:
-      - ./static-html:/usr/share/nginx/html:ro
-  django:
+  rest:
     build: .
-    image: dungeon
-    env_file: env
+    image: rest
+    command: python app.py
+    ports:
+      - 80:5000
     volumes:
-      - .:/code
-    command: python manage.py runserver 0.0.0.0:8000
-
+      - .:/code/
   db:
     image: postgres
-    env_file: env
  
