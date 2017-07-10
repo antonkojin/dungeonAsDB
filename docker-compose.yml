@@ -1,19 +1,22 @@
-version: '2'
+version: '3'
 services:
   web:
+    image: nginx
+    expose: 
+      - 80
+    ports:
+      - 80:80
+    volumes:
+      - ./static-html:/usr/share/nginx/html:ro
+  django:
     build: .
     image: dungeon
-    ports:
-      - 80:8000
-    links:
-      - postgres:postgres
     env_file: env
     volumes:
       - .:/code
+    command: python manage.py runserver 0.0.0.0:8000
 
-  postgres:
-    image: postgres:latest
+  db:
+    image: postgres
     env_file: env
-    expose: 
-      - 5432
-
+ 
