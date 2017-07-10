@@ -5,9 +5,15 @@ services:
     image: rest
     command: python app.py
     ports:
-      - 80:5000
+      - 8000:5000
     volumes:
       - .:/code/
   db:
     image: postgres
+  web:
+    image: nginx
+    volumes:
+      - ./html:/usr/share/nginx/html:ro
+    ports:
+      - 80:80
  
