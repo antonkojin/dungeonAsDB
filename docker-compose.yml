@@ -1,19 +1,21 @@
 version: '3'
 services:
   rest:
-    build: .
+    build: rest/
     image: rest
     command: python app.py
     ports:
       - 8000:5000
     volumes:
-      - .:/code/
+      - ./rest:/code
   db:
     image: postgres
   web:
-    image: nginx
+    build: web/
+    image: web
     volumes:
-      - ./html:/usr/share/nginx/html:ro
+      - ./web/html:/usr/share/nginx/html:ro
     ports:
       - 80:80
+      - 443:443
  
