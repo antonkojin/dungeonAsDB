@@ -10,6 +10,8 @@ services:
       - ./rest:/code
   db:
     image: postgres
+    ports:
+      - 5432:5432
   web:
     build: web/
     image: web
