@@ -2,9 +2,12 @@ DROP TABLE IF EXISTS character_items;
 DROP TABLE IF EXISTS characters;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS items;
-DROP TYPE IF EXISTS CATEGORY;
+DROP TYPE IF EXISTS ITEM_CATEGORY;
+DROP TABLE IF EXISTS enemies;
+DROP TABLE IF EXISTS rooms;
+DROP TABLE IF EXISTS gates;
 
-CREATE TYPE CATEGORY AS ENUM ('attack', 'defence', 'consumable');
+CREATE TYPE ITEM_CATEGORY AS ENUM ('attack', 'defence', 'consumable');
 CREATE TABLE items (
 	id SERIAL PRIMARY KEY,
 	name VARCHAR(20) NOT NULL,
@@ -13,7 +16,7 @@ CREATE TABLE items (
         defence SMALLINT NOT NULL, -- [-6,6]
         wisdom SMALLINT NOT NULL, -- [-6,6]
         hit_points SMALLINT NOT NULL, -- [-6,6]
-	category CATEGORY NOT NULL
+	category ITEM_CATEGORY NOT NULL
 
 );
 
@@ -59,8 +62,14 @@ CREATE TABLE enemies (
 	damage SMALLINT NOT NULL
 );
 
+CREATE TABLE rooms (
+	id SERIAL PRIMARY KEY,
+	description VARCHAR NOT NULL
+);
 
+CREATE TABLE gates (
 
+);
 
 
 
