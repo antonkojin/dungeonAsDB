@@ -1,0 +1,52 @@
+signup
+	/user POST {email, nickname, passwowrd}
+	returns 201 or ERROR
+
+character creation
+	/character POST {
+		name
+		description*
+		strength
+		intellect
+		dexterity
+		constitution 
+	}
+	returns 201(created) | 409(conflict)
+
+start dungeon
+	/dungeon POST
+	returns /dungeon
+
+gameflow
+	/dungeon GET
+	returns {
+		room {
+			description
+			items: [
+				{
+					id
+					description
+				}
+			]
+			enemies: [
+				{
+					id
+					description
+				}
+			]
+			gates: [
+				{
+					id
+				}
+			]
+		}
+		character {
+			bag
+		}
+	}
+
+	/dungeon/item/<item> PUT to take an item from room returns ERROR if enemies
+	/dungeon/enemy/<enemy> PUT to fight enemy
+	/dungeon/gate/<gate> PUT to follow gate to
+	/dungeon/bag/<item> PUT to use an item in bag or equip
+
