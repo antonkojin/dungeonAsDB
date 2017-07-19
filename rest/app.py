@@ -9,7 +9,7 @@ def hello_world():
         'mail': 'anton@example.com'
     })
 
-@app.route('/users/', methods=['POST'])
+@app.route('/user', methods=['POST', 'GET'])
 def signup():
 	return jsonify({
 		'email': request.form['email'],
