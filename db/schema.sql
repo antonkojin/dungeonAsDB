@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS character_items;
 DROP TABLE IF EXISTS room_enemies;
 DROP TABLE IF EXISTS room_items;
-ALTER TABLE rooms DROP CONSTRAINT IF EXISTS rooms_dungeon_fkey;
+ALTER TABLE IF EXISTS rooms DROP CONSTRAINT IF EXISTS rooms_dungeon_fkey;
 DROP TABLE IF EXISTS dungeons;
 DROP TABLE IF EXISTS gates;
 DROP TABLE IF EXISTS rooms;
@@ -17,9 +17,9 @@ CREATE TABLE items (
 	name VARCHAR(20) NOT NULL,
 	description VARCHAR NOT NULL,
 	attack SMALLINT NOT NULL, -- [-6,6]
-        defence SMALLINT NOT NULL, -- [-6,6]
-        wisdom SMALLINT NOT NULL, -- [-6,6]
-        hit_points SMALLINT NOT NULL, -- [-6,6]
+    defence SMALLINT NOT NULL, -- [-6,6]
+    wisdom SMALLINT NOT NULL, -- [-6,6]
+    hit_points SMALLINT NOT NULL, -- [-6,6]
 	category ITEM_CATEGORY NOT NULL
 );
 
@@ -100,13 +100,3 @@ CREATE TABLE gates (
 	room_to INTEGER REFERENCES rooms(id) NOT NULL,
 	hidden BOOLEAN NOT NULL
 );
-
-
-
-
-
-
-
-
-
-

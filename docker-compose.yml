@@ -9,11 +9,12 @@ services:
     volumes:
       - ./rest:/code
   db:
-    image: postgres
+    build: db/
+    image: db
     ports:
       - 5432:5432
     volumes:
-      - ./db:/code
+      - ./db/schema.sql:/code/schema.sql
   web:
     build: web/
     image: web
