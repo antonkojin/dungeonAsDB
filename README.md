@@ -1,3 +1,3 @@
 # progetto_db
 
-docker-compose up [--build]
+docker-compose up
