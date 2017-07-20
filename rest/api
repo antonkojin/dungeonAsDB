@@ -17,6 +17,9 @@ start dungeon
 	/dungeon POST
 	returns /dungeon
 
+end dungeon
+    /dungeon DELETE
+
 gameflow
 	/dungeon GET
 	returns {
@@ -45,8 +48,18 @@ gameflow
 		}
 	}
 
-	/dungeon/item/<item> PUT to take an item from room returns ERROR if enemies
-	/dungeon/enemy/<enemy> PUT to fight enemy
-	/dungeon/gate/<gate> PUT to follow gate to
-	/dungeon/bag/<item> PUT to use an item in bag or equip
+	/dungeon/item/<item> POST to take an item from room returns ERROR if enemies
+
+	/dungeon/enemy/<enemy> POST to fight enemy
+
+	/dungeon/gate/<gate> POST to follow gate to
+
+	/dungeon/bag/<item> POST to use an item in bag or equip
+
+    /dungeon/search POST to search for hidden items or gates
+    returns {
+        (item|gate): {
+            url: /dungeon/(item|gate)/(<item>/<gate>)
+        }, 201 | 204 (no content)
+    }
 
