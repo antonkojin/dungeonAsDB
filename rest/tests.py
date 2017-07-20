@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import json
 import requests
 
 def url(path):
@@ -17,7 +16,11 @@ class TestUserSignup(unittest.TestCase):
             'password': 'test_password'
         }
         response = requests.post(url('user'), data=request_data)
-        self.assertIn(response.status_code, expected_status_codes, 'bad status code')
+        self.assertIn(
+            response.status_code, 
+            expected_status_codes, 
+            'bad status code'
+        )
 
     def test_login(self):
         expected_status_codes = [200]
@@ -26,7 +29,11 @@ class TestUserSignup(unittest.TestCase):
             'test_password'
         )
         response = requests.get(url('dungeon'), auth=auth)
-        self.assertIn(response.status_code, expected_status_codes, 'bad status code')
+        self.assertIn(
+            response.status_code, 
+            expected_status_codes, 
+            'bad status code'
+        )
 
     def test_wrong_login(self):
         expected_status_codes = [401]
@@ -35,8 +42,12 @@ class TestUserSignup(unittest.TestCase):
             'test_password_wrong'
         )
         response = requests.get(url('dungeon'), auth=auth)
-        self.assertIn(response.status_code, expected_status_codes, 'bad status code')
+        self.assertIn(
+            response.status_code, 
+            expected_status_codes, 
+            'bad status code'
+        )
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(verbosity=2)
  
