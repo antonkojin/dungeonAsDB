@@ -1,5 +1,5 @@
 signup
-	/user POST {email, nickname, passwowrd}
+	/user POST {email, nickname, password}
 	returns 201 or ERROR
 
 character creation

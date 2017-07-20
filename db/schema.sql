@@ -25,9 +25,9 @@ CREATE TABLE items (
 
 CREATE TABLE users (
 	id SERIAL PRIMARY KEY,
-	nickname VARCHAR(20) NOT NULL,
-	email VARCHAR(254) NOT NULL,
-	password_hash BYTEA NOT NULL
+	nickname VARCHAR(20) NOT NULL UNIQUE,
+	email VARCHAR(254) NOT NULL UNIQUE,
+	password_hash CHARACTER(93) NOT NULL
 );
 	
 CREATE TABLE characters (
