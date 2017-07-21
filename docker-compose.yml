@@ -14,7 +14,7 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - ./db/schema.sql:/code/schema.sql
+      - ./db:/code
   web:
     build: web/
     image: web
