@@ -12,6 +12,7 @@ auth = (
 )
 
 class TestDungeonAsDB(unittest.TestCase):
+
     def test_signup(self):
         expected_status_codes = [204, 409]
         request_data = {
@@ -149,8 +150,45 @@ class TestDungeonAsDB(unittest.TestCase):
         self.assertIn('character', response_json)
         character = response_json['character']
         self.assertIn('bag', character)
-        
+
+    @unittest.skip('')
+    def test_take_item_from_room(self):
+        from json.decoder import JSONDecodeError
+        response = requests.get(url('dungeon'), auth=auth)
+        items = response.json()['room']['items']
+        if len(items) == 0: self.skipTest('can\'t test, there\'s no items here') 
+        response = requests.put(
+            url('dungeon/item/{item}'.format(item=item)),
+            auth=auth
+        )
+        self.assertIn(
+            response.status_code,
+            [204]
+        )
+
+    @unittest.skip('')
+    def test_follow_gate_to_other_room(self):
+        response = requests.get(url('dungeon'), auth=auth)
+        previous_room = response.json()['room']
+        gate = previous_room['gates'][0]['id']
+        response = requests.get(
+            url('dungeon/gate/{gate}'.format(gate=gate)),
+            auth=auth
+        )
+        self.assertEqual(
+            response.status_code,
+            200
+        )
+        self.assertNotEqual(
+            response.json()['room'],
+            previous_room
+        )
+
 
 if __name__ == '__main__':
-    unittest.main(verbosity=2)
+    from colour_runner.runner import ColourTextTestRunner
+    unittest.main(
+        verbosity=2, 
+        testRunner=ColourTextTestRunner
+    )
 
