@@ -183,6 +183,45 @@ class TestDungeonAsDB(unittest.TestCase):
             previous_room
         )
 
+    @unittest.skip('')
+    def test_use_consumable_item(self):
+        response = requests.get(url('dungeon'), auth=auth)
+        character = response.json()['character']
+        items = response.json()['room']['items']
+        consumable_items = [
+            item 
+            for item in items 
+            if item['type'] == 'consumable'
+        ]
+        if len(consumable_items) == 0:
+            self.skipTest('can\'t test, don\'t have consumable items') 
+        item = consumable_items[0]
+        response = requests.put(
+            url('dungeon/bag/{item}'.format(item=item['id'])),
+            auth=auth
+        )
+        self.assertEqual(
+            response.status_code,
+            200
+        )
+        updated_character = response.json()['character']
+        self.assertEqual(
+            updated_character['attack'],
+            character['attack'] + item['attack']
+        )
+        self.assertEqual(
+            updated_character['defence'],
+            character['defence'] + item['attack']
+        )
+        self.assertEqual(
+            updated_character['wisdom'],
+            character['wisdom'] + item['attack']
+        )
+        self.assertEqual(
+            updated_character['hit_points'],
+            character['hit_points'] + item['attack']
+        )
+
 
 if __name__ == '__main__':
     from colour_runner.runner import ColourTextTestRunner
