@@ -153,7 +153,6 @@ class TestDungeonAsDB(unittest.TestCase):
 
     @unittest.skip('')
     def test_take_item_from_room(self):
-        from json.decoder import JSONDecodeError
         response = requests.get(url('dungeon'), auth=auth)
         items = response.json()['room']['items']
         if len(items) == 0: self.skipTest('can\'t test, there\'s no items here') 
