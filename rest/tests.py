@@ -187,7 +187,7 @@ class TestDungeonAsDB(unittest.TestCase):
     def test_use_consumable_item(self):
         response = requests.get(url('dungeon'), auth=auth)
         character = response.json()['character']
-        items = response.json()['room']['items']
+        items = character['bag']
         consumable_items = [
             item 
             for item in items 
@@ -211,15 +211,58 @@ class TestDungeonAsDB(unittest.TestCase):
         )
         self.assertEqual(
             updated_character['defence'],
-            character['defence'] + item['attack']
+            character['defence'] + item['defence']
         )
         self.assertEqual(
             updated_character['wisdom'],
-            character['wisdom'] + item['attack']
+            character['wisdom'] + item['wisdom']
         )
         self.assertEqual(
             updated_character['hit_points'],
-            character['hit_points'] + item['attack']
+            character['hit_points'] + item['hit_points']
+        )
+
+    @unittest.skip('')
+    def test_equip_wearable_item(self):
+        response = requests.get(url('dungeon'), auth=auth)
+        character = response.json()['character']
+        items = character['bag']
+        wearable_items = [
+            item 
+            for item in items 
+            if item['type'] == 'defence'
+            and (
+                item['id'] != character['equipped_defece_item']['id']
+                if character['equipped_defence_item'] 
+                else None
+            )
+            and (
+                item['id'] != character['equipped_attack_item']['id']
+                if character['equipped_attack_item'] 
+                else None
+            )
+        ]
+        if len(wearable_items) == 0:
+            self.skipTest('can\'t test, don\'t have other wearable items') 
+        item = wearable_items[0]
+        response = requests.put(
+            url('dungeon/bag/{item}'.format(item=item['id'])),
+            auth=auth
+        )
+        self.assertEqual(
+            response.status_code,
+            200
+        )
+        updated_character = response.json()['character']
+        self.assertEqual(
+            updated_character[item['type'] + '_item'],
+            item
+        )
+        self.assertNotEqual(
+            updated_character[item['type'] + '_item'][id],
+            character[item['type'] + '_item'][id]
+                if character[item['type'] + '_item'] 
+                else None
         )
 
 
