@@ -46,8 +46,8 @@ CREATE TABLE characters (
 --	wisdom = intellect + bonus
 --	hit_points = constitution + bonus
 	room_attack_bonus SMALLINT,
-	room_defence_bonus, SMALLINT
-	room_wisdom_bonus, SMALLINT
+	room_defence_bonus SMALLINT,
+	room_wisdom_bonus SMALLINT,
 	room_hit_points_bonus SMALLINT
 );
 
