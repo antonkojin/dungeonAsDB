@@ -34,17 +34,21 @@ CREATE TABLE characters (
 	id SERIAL PRIMARY KEY,
 	name VARCHAR(20) NOT NULL,
 	description VARCHAR,
-	strength SMALLINT, -- [3,18]
-	intellect SMALLINT, -- [3,18]
-	dexterity SMALLINT, -- [3,18]
-	constitution SMALLINT, -- [3,18]
+	strength SMALLINT NOT NULL, -- [3,18]
+	intellect SMALLINT NOT NULL, -- [3,18]
+	dexterity SMALLINT NOT NULL, -- [3,18]
+	constitution SMALLINT NOT NULL, -- [3,18]
 	equipped_defence_item INTEGER REFERENCES items(id),
 	equipped_attack_item INTEGER REFERENCES items(id),
-	"user" INTEGER REFERENCES users(id)
+	"user" INTEGER REFERENCES users(id) NOT NULL,
 --	attack = (strength + dexterity) / 2 + bonus
 --	defence = (constitution + dextrity) / 2 + bonus
 --	wisdom = intellect + bonus
 --	hit_points = constitution + bonus
+	room_attack_bonus SMALLINT,
+	room_defence_bonus, SMALLINT
+	room_wisdom_bonus, SMALLINT
+	room_hit_points_bonus SMALLINT
 );
 
 CREATE TABLE rooms (
