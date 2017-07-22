@@ -27,7 +27,6 @@ def verify_pw(username, password):
     db_pw = get_pw(username)
     return check_password_hash(db_pw, password)
 
-
 @app.route('/user', methods=['POST'])
 def signup():
     from werkzeug.security import generate_password_hash
@@ -49,10 +48,23 @@ def signup():
                 return ('', 409)
     return ('', 204)
 
-@app.route('/dungeon', methods=['GET'])
+@app.route('/user', methods=['GET'])
 @auth.login_required
-def dungeon():
-    return ('' ,200)
+def user():
+    query = 'SELECT email, nickname FROM users WHERE email = %s'
+    values = (auth.username(), )
+    with db.connect(db_parameters) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(query, values)
+            email, nickname = cursor.fetchone()
+    return (
+        jsonify({
+            'email': email,
+            'nickname': nickname
+        }), 
+        200
+    )
+    
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
