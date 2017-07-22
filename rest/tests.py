@@ -27,11 +27,15 @@ class TestDungeonAsDB(unittest.TestCase):
 
     def test_login(self):
         expected_status_code = 200
-        response = requests.get(url('dungeon'), auth=auth)
+        email = 'test@example.com'
+        nickname = 'test_nickname'
+        response = requests.get(url('user'), auth=auth)
         self.assertEqual(
             response.status_code, 
             expected_status_code
         )
+        self.assertEqual(response.json()['email'], email)
+        self.assertEqual(response.json()['nickname'], nickname)
 
     def test_cant_login_with_wrong_password(self):
         expected_status_code = 401
@@ -39,7 +43,7 @@ class TestDungeonAsDB(unittest.TestCase):
             'test@example.com',
             'test_password_wrong'
         )
-        response = requests.get(url('dungeon'), auth=auth)
+        response = requests.get(url('user'), auth=auth)
         self.assertEqual(
             response.status_code, 
             expected_status_code
