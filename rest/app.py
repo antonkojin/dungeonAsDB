@@ -91,7 +91,6 @@ def create_character():
             try:
                 cursor.execute(query, values)
             except db.IntegrityError as e:
-                app.logger.warning(db.errorcodes.lookup(e.pgcode))
                 app.logger.warning(e)
                 if e.pgcode == db.errorcodes.CHECK_VIOLATION:
                     return ('', 400)
@@ -100,6 +99,23 @@ def create_character():
                     
 
     return ('', 201)
+
+@app.route('/dungeon', methods=['POST'])
+@auth.login_required
+def stat_dungeon():
+    email = auth.username()
+    app.logger.info('creating dungeon')
+    query = 'SELECT create_dungeon(%s)'
+    with db.connect(db_parameters) as connection:
+        with connection.cursor() as cursor:
+            try:
+                cursor.execute(query, (email, ))
+            except db.IntegrityError as e:
+                app.logger.warning(e)
+                if e.pgcode == db.errorcodes.UNIQUE_VIOLATION:
+                    return ('', 409)
+
+    
 
 
 if __name__ == '__main__':

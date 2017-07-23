@@ -104,7 +104,6 @@ class TestDungeonAsDB(unittest.TestCase):
             codes.bad_request
         )
 
-    @unittest.skip('')
     def test_start_dungeon(self):
         expected_status_codes = [codes.created, codes.conflict]
         response = requests.post(url('dungeon'), auth=auth)
@@ -113,7 +112,6 @@ class TestDungeonAsDB(unittest.TestCase):
             expected_status_codes
         )
         
-    @unittest.skip('')
     def test_dungeon_status(self):
         requests.get(url('dungeon'), auth=auth)
         response = requests.post(url('dungeon'), auth=auth)
