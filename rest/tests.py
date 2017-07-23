@@ -2,6 +2,7 @@
 
 import unittest
 import requests
+from requests import codes
 
 def url(path):
     return "http://localhost:8000/" + path
@@ -14,7 +15,7 @@ auth = (
 class TestDungeonAsDB(unittest.TestCase):
 
     def test_signup(self):
-        expected_status_codes = [204, 409]
+        expected_status_codes = [codes.no_content, codes.conflict]
         request_data = {
             'email':'test@example.com',
             'nickname': 'test_nickname',
@@ -27,19 +28,17 @@ class TestDungeonAsDB(unittest.TestCase):
         )
 
     def test_login(self):
-        expected_status_code = 200
         email = 'test@example.com'
         nickname = 'test_nickname'
         response = requests.get(url('user'), auth=auth)
         self.assertEqual(
             response.status_code, 
-            expected_status_code
+            codes.ok
         )
         self.assertEqual(response.json()['email'], email)
         self.assertEqual(response.json()['nickname'], nickname)
 
     def test_cant_login_with_wrong_password(self):
-        expected_status_code = 401
         auth = (
             'test@example.com',
             'test_password_wrong'
@@ -47,19 +46,19 @@ class TestDungeonAsDB(unittest.TestCase):
         response = requests.get(url('user'), auth=auth)
         self.assertEqual(
             response.status_code, 
-            expected_status_code
+            codes.unauthorized
         )
 
     @unittest.skip('')
     def test_create_character(self):
-        expected_status_codes = [201, 409]
+        expected_status_codes = [codes.created, codes.conflict]
         data = {
             'name': 'test_character_name',
             'description': 'test_character_not_very_long_description',
             'strength': 18,
-            'intellect': 18,
-            'dexterity': 18,
-            'constitution': 18
+            'intellect': 10,
+            'dexterity': 3,
+            'constitution': 17
         }
         response = requests.post(url('character'), auth=auth, data=data)
         self.assertIn(
@@ -68,8 +67,23 @@ class TestDungeonAsDB(unittest.TestCase):
         )
 
     @unittest.skip('')
+    def test_cant_create_wrong_character(self):
+        data = {
+            'name': 'test_character_name',
+            'description': 'test_character_not_very_long_description',
+            'strength': 20,
+            'intellect': 3,
+            'dexterity': 19,
+            'constitution': 2
+        }
+        response = requests.post(url('character'), auth=auth, data=data)
+        self.assertEqual(
+            response.status_code, 
+            code.bad_request
+        )
+
+    @unittest.skip('')
     def test_cant_create_another_character(self):
-        expected_status_code = 409
         data = {
             'name': 'test_character_name',
             'description': 'test_character_not_very_long_description',
@@ -90,12 +104,12 @@ class TestDungeonAsDB(unittest.TestCase):
         response = requests.post(url('character'), auth=auth, data=another_data)
         self.assertEqual(
             response.status_code, 
-            expected_status_code
+            codes.conflict
         )
 
     @unittest.skip('')
     def test_start_dungeon(self):
-        expected_status_codes = [201, 409]
+        expected_status_codes = [codes.created, codes.conflict]
         response = requests.post(url('dungeon'), auth=auth)
         self.assertIn(
             response.status_code, 
@@ -104,12 +118,11 @@ class TestDungeonAsDB(unittest.TestCase):
         
     @unittest.skip('')
     def test_cant_start_another_dungeon(self):
-        expected_status_code = 409
         requests.post(url('dungeon'), auth=auth)
         response = requests.post(url('dungeon'), auth=auth)
         self.assertEqual(
             response.status_code, 
-            expected_status_code
+            codes.conflict
         )
 
     @unittest.skip('')
@@ -118,27 +131,26 @@ class TestDungeonAsDB(unittest.TestCase):
         response = requests.post(url('dungeon'), auth=auth)
         self.assertEqual(
             response.status_code, 
-            409
+            codes.conflict
         )
         response = requests.delete(url('dungeon'), auth=auth)
         self.assertEqual(
             response.status_code, 
-            200
+            codes.ok
         )
         response = requests.post(url('dungeon'), auth=auth)
         self.assertEqual(
             response.status_code, 
-            201
+            codes.created
         )
 
     @unittest.skip('')
     def test_dungeon_status(self):
-        expected_status_code = 200
         requests.get(url('dungeon'), auth=auth)
         response = requests.post(url('dungeon'), auth=auth)
         self.assertEqual(
             response.status_code,
-            expected_status_code
+            codes.ok
         )
         response_json = response.json()
         self.assertIn('room', response_json)
@@ -160,9 +172,9 @@ class TestDungeonAsDB(unittest.TestCase):
             url('dungeon/item/{item}'.format(item=item)),
             auth=auth
         )
-        self.assertIn(
+        self.assertEqual(
             response.status_code,
-            [204]
+            codes.no_content
         )
 
     @unittest.skip('')
@@ -176,7 +188,7 @@ class TestDungeonAsDB(unittest.TestCase):
         )
         self.assertEqual(
             response.status_code,
-            200
+            codes.ok
         )
         self.assertNotEqual(
             response.json()['room'],
@@ -202,7 +214,7 @@ class TestDungeonAsDB(unittest.TestCase):
         )
         self.assertEqual(
             response.status_code,
-            200
+            codes.ok
         )
         updated_character = response.json()['character']
         self.assertEqual(
@@ -251,7 +263,7 @@ class TestDungeonAsDB(unittest.TestCase):
         )
         self.assertEqual(
             response.status_code,
-            200
+            codes.ok
         )
         updated_character = response.json()['character']
         self.assertEqual(
