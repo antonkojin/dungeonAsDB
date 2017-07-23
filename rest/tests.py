@@ -49,7 +49,6 @@ class TestDungeonAsDB(unittest.TestCase):
             codes.unauthorized
         )
 
-    @unittest.skip('')
     def test_create_character(self):
         expected_status_codes = [codes.created, codes.conflict]
         data = {
@@ -66,23 +65,6 @@ class TestDungeonAsDB(unittest.TestCase):
             expected_status_codes
         )
 
-    @unittest.skip('')
-    def test_cant_create_wrong_character(self):
-        data = {
-            'name': 'test_character_name',
-            'description': 'test_character_not_very_long_description',
-            'strength': 20,
-            'intellect': 3,
-            'dexterity': 19,
-            'constitution': 2
-        }
-        response = requests.post(url('character'), auth=auth, data=data)
-        self.assertEqual(
-            response.status_code, 
-            code.bad_request
-        )
-
-    @unittest.skip('')
     def test_cant_create_another_character(self):
         data = {
             'name': 'test_character_name',
@@ -105,6 +87,21 @@ class TestDungeonAsDB(unittest.TestCase):
         self.assertEqual(
             response.status_code, 
             codes.conflict
+        )
+
+    def test_cant_create_wrong_character(self):
+        data = {
+            'name': 'test_character_name',
+            'description': 'test_character_not_very_long_description',
+            'strength': 20,
+            'intellect': 3,
+            'dexterity': 19,
+            'constitution': 2
+        }
+        response = requests.post(url('character'), auth=auth, data=data)
+        self.assertEqual(
+            response.status_code, 
+            codes.bad_request
         )
 
     @unittest.skip('')

@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
 import psycopg2 as db
+import psycopg2.errorcodes
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import check_password_hash
 
@@ -64,7 +65,42 @@ def user():
         }), 
         200
     )
-    
+
+@app.route('/character', methods=['POST'])
+@auth.login_required
+def create_character():
+    email = auth.username()
+    name = request.form['name']
+    description = request.form['description']
+    strength = request.form['strength']
+    intellect = request.form['intellect']
+    dexterity = request.form['dexterity']
+    constitution = request.form['constitution']
+    query = 'SELECT create_character(%s, %s, %s, %s, %s, %s, %s)'
+    values = (
+        name,
+        description,
+        strength,
+        intellect,
+        dexterity,
+        constitution,
+        email
+    )
+    with db.connect(db_parameters) as connection:
+        with connection.cursor() as cursor:
+            try:
+                cursor.execute(query, values)
+            except db.IntegrityError as e:
+                app.logger.warning(db.errorcodes.lookup(e.pgcode))
+                app.logger.warning(e)
+                if e.pgcode == db.errorcodes.CHECK_VIOLATION:
+                    return ('', 400)
+                elif e.pgcode == db.errorcodes.UNIQUE_VIOLATION:
+                    return ('', 409)
+                    
+
+    return ('', 201)
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

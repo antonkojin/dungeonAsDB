@@ -34,10 +34,10 @@ CREATE TABLE characters (
 	id SERIAL PRIMARY KEY,
 	name VARCHAR(20) NOT NULL,
 	description VARCHAR,
-	strength SMALLINT NOT NULL, -- [3,18]
-	intellect SMALLINT NOT NULL, -- [3,18]
-	dexterity SMALLINT NOT NULL, -- [3,18]
-	constitution SMALLINT NOT NULL, -- [3,18]
+	strength SMALLINT NOT NULL CHECK (strength >= 3 AND strength <= 18),
+	intellect SMALLINT NOT NULL CHECK (strength >= 3 AND strength <= 18),
+	dexterity SMALLINT NOT NULL CHECK (strength >= 3 AND strength <= 18),
+	constitution SMALLINT NOT NULL CHECK (strength >= 3 AND strength <= 18),
 	equipped_defence_item INTEGER REFERENCES items(id),
 	equipped_attack_item INTEGER REFERENCES items(id),
 	"user" INTEGER REFERENCES users(id) NOT NULL UNIQUE,
@@ -104,3 +104,37 @@ CREATE TABLE gates (
 	room_to INTEGER REFERENCES rooms(id) NOT NULL,
 	hidden BOOLEAN NOT NULL
 );
+
+DROP FUNCTION IF EXISTS create_character(character varying,character varying,smallint,smallint,smallint,smallint,character varying);
+CREATE FUNCTION create_character(
+    name VARCHAR(20), 
+    description VARCHAR,
+    strength SMALLINT,
+    intellect SMALLINT,
+    dexterity SMALLINT,
+    constitution SMALLINT,
+    user_email VARCHAR(254)
+) RETURNS void AS $$
+    DECLARE
+        user_id INTEGER;
+    BEGIN
+        user_id := (SELECT id FROM "users" WHERE users.email = user_email);
+        INSERT INTO characters (
+            name, 
+            description, 
+            strength, 
+            intellect, 
+            dexterity, 
+            constitution, 
+            "user"
+        ) VALUES (
+            name, 
+            description, 
+            strength, 
+            intellect, 
+            dexterity, 
+            constitution, 
+            user_id
+        );
+    END;
+$$ LANGUAGE 'plpgsql';
