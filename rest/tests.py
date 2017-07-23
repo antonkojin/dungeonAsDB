@@ -114,6 +114,25 @@ class TestDungeonAsDB(unittest.TestCase):
         )
         
     @unittest.skip('')
+    def test_dungeon_status(self):
+        requests.get(url('dungeon'), auth=auth)
+        response = requests.post(url('dungeon'), auth=auth)
+        self.assertEqual(
+            response.status_code,
+            codes.ok
+        )
+        response_json = response.json()
+        self.assertIn('room', response_json)
+        room = response_json['room']
+        self.assertIn('description', room)
+        self.assertIn('items', room)
+        self.assertIn('enemies', room)
+        self.assertIn('gates', room)
+        self.assertIn('character', response_json)
+        character = response_json['character']
+        self.assertIn('bag', character)
+
+    @unittest.skip('')
     def test_cant_start_another_dungeon(self):
         requests.post(url('dungeon'), auth=auth)
         response = requests.post(url('dungeon'), auth=auth)
@@ -140,25 +159,6 @@ class TestDungeonAsDB(unittest.TestCase):
             response.status_code, 
             codes.created
         )
-
-    @unittest.skip('')
-    def test_dungeon_status(self):
-        requests.get(url('dungeon'), auth=auth)
-        response = requests.post(url('dungeon'), auth=auth)
-        self.assertEqual(
-            response.status_code,
-            codes.ok
-        )
-        response_json = response.json()
-        self.assertIn('room', response_json)
-        room = response_json['room']
-        self.assertIn('description', room)
-        self.assertIn('items', room)
-        self.assertIn('enemies', room)
-        self.assertIn('gates', room)
-        self.assertIn('character', response_json)
-        character = response_json['character']
-        self.assertIn('bag', character)
 
     @unittest.skip('')
     def test_take_item_from_room(self):
