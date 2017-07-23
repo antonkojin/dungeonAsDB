@@ -40,7 +40,7 @@ CREATE TABLE characters (
 	constitution SMALLINT NOT NULL, -- [3,18]
 	equipped_defence_item INTEGER REFERENCES items(id),
 	equipped_attack_item INTEGER REFERENCES items(id),
-	"user" INTEGER REFERENCES users(id) NOT NULL,
+	"user" INTEGER REFERENCES users(id) NOT NULL UNIQUE,
 --	attack = (strength + dexterity) / 2 + bonus
 --	defence = (constitution + dextrity) / 2 + bonus
 --	wisdom = intellect + bonus
