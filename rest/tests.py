@@ -114,7 +114,7 @@ class TestDungeonAsDB(unittest.TestCase):
         
     def test_dungeon_status(self):
         requests.get(url('dungeon'), auth=auth)
-        response = requests.post(url('dungeon'), auth=auth)
+        response = requests.get(url('dungeon'), auth=auth)
         self.assertEqual(
             response.status_code,
             codes.ok
