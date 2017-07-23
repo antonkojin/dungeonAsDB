@@ -1,6 +1,7 @@
 version: '3'
 services:
   rest:
+    restart: always
     build: rest/
     image: rest
     command: python app.py
