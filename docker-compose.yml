@@ -1,7 +1,7 @@
 version: '3'
 services:
   rest:
-    restart: always
+    restart: unless-stopped
     build: rest/
     image: rest
     command: python app.py
@@ -10,6 +10,7 @@ services:
     volumes:
       - ./rest:/code
   db:
+    restart: unless-stopped
     build: db/
     image: db
     ports:
@@ -17,6 +18,7 @@ services:
     volumes:
       - ./db:/code
   web:
+    restart: unless-stopped
     build: web/
     image: web
     volumes:
