@@ -260,10 +260,13 @@ RETURNS void AS $$
 $$ LANGUAGE 'plpgsql';
 
 DROP FUNCTION IF EXISTS dungeon_status(VARCHAR);
-/*
 CREATE FUNCTION dungeon_status(user_email VARCHAR(254))
-RETURNS RECORD AS $$
+RETURNS TABLE(
+   n NUMERIC
+) AS $$
     BEGIN
+        SELECT 1;
+        /*
         return (
             SELECT
                 -- room
@@ -310,6 +313,7 @@ RETURNS RECORD AS $$
             AND room_items.item = items.id
             WHERE characters.email = user_email
         );
+        */
     END;
 $$ LANGUAGE 'plpgsql';
-*/
+

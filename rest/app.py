@@ -96,6 +96,8 @@ def create_character():
                     return ('', 400)
                 elif e.pgcode == db.errorcodes.UNIQUE_VIOLATION:
                     return ('', 409)
+                else:
+                    raise e
                     
 
     return ('', 201)
@@ -104,7 +106,6 @@ def create_character():
 @auth.login_required
 def stat_dungeon():
     email = auth.username()
-    app.logger.info('creating dungeon')
     query = 'SELECT create_dungeon(%s)'
     with db.connect(db_parameters) as connection:
         with connection.cursor() as cursor:
@@ -114,6 +115,20 @@ def stat_dungeon():
                 app.logger.warning(e)
                 if e.pgcode == db.errorcodes.UNIQUE_VIOLATION:
                     return ('', 409)
+                else:
+                    raise e
+    return ('', 201)
+
+@app.route('/dungeon', methods=['GET'])
+@auth.login_required
+def stat_dungeon():
+    email = auth.username()
+    query = 'SELECT dungeon_status(%s)'
+    with db.connect(db_parameters) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(query, (email, ))
+            dungeon_status = cursor.fetchAll()
+    return (jsonify(dungeon_status), 200)
 
     
 
