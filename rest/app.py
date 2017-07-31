@@ -7,17 +7,13 @@ from werkzeug.security import check_password_hash
 app = Flask(__name__)
 auth = HTTPBasicAuth()
 
-db_parameters = (
-    'host=db '
-    'port=5432 '
-    'user=dungeon_as_db_superuser '
-    'dbname=dungeon_as_db'
-)
+import os
+db_url = os.getenv('DATABASE_URL')
 
 def get_pw(email):
     query = 'SELECT password_hash FROM users WHERE email = %s'
     arguments = (email, )
-    with db.connect(db_parameters) as connection:
+    with db.connect(db_url) as connection:
         with connection.cursor() as cursor:
             cursor.execute(query, arguments)
             result = cursor.fetchone()
@@ -40,7 +36,7 @@ def signup():
         request.form['nickname'],
         generate_password_hash(request.form['password'])
     )
-    with db.connect(db_parameters) as connection:
+    with db.connect(db_url) as connection:
         with connection.cursor() as cursor:
             try:
                 cursor.execute(query, values)
@@ -54,7 +50,7 @@ def signup():
 def user():
     query = 'SELECT email, nickname FROM users WHERE email = %s'
     values = (auth.username(), )
-    with db.connect(db_parameters) as connection:
+    with db.connect(db_url) as connection:
         with connection.cursor() as cursor:
             cursor.execute(query, values)
             email, nickname = cursor.fetchone()
@@ -86,7 +82,7 @@ def create_character():
         constitution,
         email
     )
-    with db.connect(db_parameters) as connection:
+    with db.connect(db_url) as connection:
         with connection.cursor() as cursor:
             try:
                 cursor.execute(query, values)
@@ -107,7 +103,7 @@ def create_character():
 def start_dungeon():
     email = auth.username()
     query = 'SELECT create_dungeon(%s)'
-    with db.connect(db_parameters) as connection:
+    with db.connect(db_url) as connection:
         with connection.cursor() as cursor:
             try:
                 cursor.execute(query, (email, ))
@@ -124,7 +120,7 @@ def start_dungeon():
 def dungeon_status():
     email = auth.username()
     query = 'SELECT dungeon_status(%s)'
-    with db.connect(db_parameters) as connection:
+    with db.connect(db_url) as connection:
         with connection.cursor() as cursor:
             cursor.execute(query, (email, ))
             dungeon_status = cursor.fetchAll()

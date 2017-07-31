@@ -8,6 +8,8 @@ services:
       - 8000:5000
     volumes:
       - ./rest:/code
+    environment:
+      - database_url=postgres://dungeon_as_db_superuser@db:5432/dungeon_as_db
   db:
     restart: unless-stopped
     build: db/
