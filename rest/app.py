@@ -134,5 +134,9 @@ def dungeon_status():
 
 
 if __name__ == '__main__':
-    from os import environ as env
-    app.run(debug=True, host='0.0.0.0', port=env.get('PORT', 5000))
+    from os import getenv
+    app.run(
+        debug=True, 
+        host='0.0.0.0', 
+        port=int(getenv('PORT', '5000'))
+    )
