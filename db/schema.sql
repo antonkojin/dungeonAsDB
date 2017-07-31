@@ -61,8 +61,8 @@ CREATE TABLE rooms (
 	id SERIAL PRIMARY KEY,
 	description INTEGER NOT NULL REFERENCES rooms_descriptions(id),
 	description VARCHAR NOT NULL,
-        visited BOOLEAN NOT NULL DEFAULT FALSE
-        -- if a room was visited then you can see it througth the gate
+    visited BOOLEAN NOT NULL DEFAULT FALSE,
+    -- if a room was visited then you can see it througth the gate
 	dungeon INTEGER NOT NULL
 );
 
