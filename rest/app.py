@@ -24,6 +24,10 @@ def verify_pw(username, password):
     db_pw = get_pw(username)
     return check_password_hash(db_pw, password)
 
+@app.route('/', methods=['GET'])
+def index():
+    return ('Hello World', 200)
+
 @app.route('/user', methods=['POST'])
 def signup():
     from werkzeug.security import generate_password_hash
