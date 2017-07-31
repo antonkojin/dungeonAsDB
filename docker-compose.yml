@@ -4,7 +4,6 @@ services:
     restart: unless-stopped
     build: rest/
     image: rest
-    command: python app.py
     ports:
       - 8000:5000
     volumes:

@@ -104,7 +104,7 @@ def create_character():
 
 @app.route('/dungeon', methods=['POST'])
 @auth.login_required
-def stat_dungeon():
+def start_dungeon():
     email = auth.username()
     query = 'SELECT create_dungeon(%s)'
     with db.connect(db_parameters) as connection:
@@ -121,7 +121,7 @@ def stat_dungeon():
 
 @app.route('/dungeon', methods=['GET'])
 @auth.login_required
-def stat_dungeon():
+def dungeon_status():
     email = auth.username()
     query = 'SELECT dungeon_status(%s)'
     with db.connect(db_parameters) as connection:
@@ -134,4 +134,5 @@ def stat_dungeon():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    from os import environ as env
+    app.run(debug=True, host='0.0.0.0', port=env.get('PORT', 5000))
