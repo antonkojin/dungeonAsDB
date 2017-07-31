@@ -3,8 +3,10 @@ import psycopg2 as db
 import psycopg2.errorcodes
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import check_password_hash
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 auth = HTTPBasicAuth()
 
 import os
@@ -23,6 +25,7 @@ def get_pw(email):
 def verify_pw(username, password):
     if not password: return False
     db_pw = get_pw(username)
+    if not db_pw: return False
     return check_password_hash(db_pw, password)
 
 @app.route('/', methods=['GET'])
