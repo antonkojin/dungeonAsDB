@@ -21,6 +21,7 @@ def get_pw(email):
 
 @auth.verify_password
 def verify_pw(username, password):
+    print('password:' + str(password))
     db_pw = get_pw(username)
     return check_password_hash(db_pw, password)
 
