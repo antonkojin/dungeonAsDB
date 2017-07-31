@@ -1,2 +1,2 @@
 web: gunicorn rest.app:app
-db: db/load_db.py
+db: db/heroku_init_db.py db/schema.sql
