@@ -2,34 +2,25 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>DungeonAsDB</title>
-        <link href="css/bootstrap.min.css" rel="stylesheet">
-        <link href="css/tyles.css" rel="stylesheet">
     </head>
     <body>
-        <div class="panel panel-primary center-block">
-            <div class="panel-heading">
-                <h1 class="panel-title">Register</h1>
+        <h1>Register</h1>
+        <form id="form-register" method="POST" target="">
+            <div class="form-group">
+                <input class="form-control" type="email" id="mail" name="user_mail" placeholder="email" autocomplete="email" required>
             </div>
-            <div class="panel-body">
-                <form action="" method="post">
-                    <div class="form-group">
-                        <input class="form-control" type="email" id="mail" name="user_mail" placeholder="email" autocomplete="email" required>
-                    </div>
-                    <div class="form-group">
-                        <input class="form-control" type="password" id="password" name="user_password" placeholder="password" autocomplete="new-password" required>
-                    </div>
-                    <div class="form-group">
-                        <button class="form-control btn-primary" type="submit">Go</button>
-                    </div>
-                </form>
+            <div class="form-group">
+                <input class="form-control" type="text" id="nickname" name="user_nickname" placeholder="nickname" required>
             </div>
-        </div>
-        <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-        <!-- Include all compiled plugins (below), or include individual files as needed -->
-        <script src="js/bootstrap.min.js"></script>
+            <div class="form-group">
+                <input class="form-control" type="password" id="password" name="user_password" placeholder="password" autocomplete="new-password" required>
+            </div>
+            <div class="form-group">
+                <button class="form-control" type="submit">Go</button>
+            </div>
+        </form>
+        <script type="text/javascript" src="js/jquery-3.2.1.js"></script>
+        <script type="text/javascript" src="js/script.js"></script>
     </body>
 </html>
