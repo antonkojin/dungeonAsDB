@@ -16,12 +16,25 @@ class TestDungeonAsDB(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        from subprocess import call
+        print('set up')
+        call('docker-compose up -d db rest', shell=True)
+        from time import sleep
+        sleep(1)
+        call('../db/docker_init_db.sh', shell=True)
         request_data = {
             'email':'test@example.com',
             'nickname': 'test_nickname',
             'password': 'test_password'
         }
         requests.post(url('user'), data=request_data)
+
+    @classmethod
+    def tearDownClass(cls):
+        from subprocess import call
+        call('docker-compose down', shell=True)
+        print('tear down')
+
 
     def test_signup(self):
         expected_status_codes = [codes.no_content, codes.conflict]
