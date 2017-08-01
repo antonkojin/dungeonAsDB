@@ -3,9 +3,16 @@
 import unittest
 import requests
 from requests import codes
+from sys import argv as args
+
+heroku = len(args) >=2 and args[1] == 'heroku'
+import sys
+if heroku: sys.argv = args[:1] + args[2:]
+host = 'https://progetto-db.herokuapp.com/' if heroku else 'http://localhost:8000/'
+init_db_script = 'heroku run db/heroku_init_db.py db/schema.sql db/data.sql' if heroku else '../db/docker_init_db.sh'
 
 def url(path):
-    return "http://localhost:8000/" + path
+    return host + path
 
 auth = (
     'test@example.com',
@@ -17,11 +24,13 @@ class TestDungeonAsDB(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         from subprocess import call
-        print('set up')
-        call('docker-compose up -d db rest', shell=True)
-        from time import sleep
-        sleep(1)
-        call('../db/docker_init_db.sh', shell=True)
+        if not heroku:
+            print('set up')
+            call('docker-compose up -d db', shell=True)
+            call('docker-compose up -d rest', shell=True)
+            from time import sleep
+            sleep(5)
+        call(init_db_script, shell=True)
         request_data = {
             'email':'test@example.com',
             'nickname': 'test_nickname',
@@ -31,9 +40,10 @@ class TestDungeonAsDB(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        from subprocess import call
-        call('docker-compose down', shell=True)
-        print('tear down')
+        if not heroku:
+            from subprocess import call
+            call('docker-compose stop', shell=True)
+            print('tear down')
 
 
     def test_signup(self):
