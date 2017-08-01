@@ -14,6 +14,15 @@ auth = (
 
 class TestDungeonAsDB(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        request_data = {
+            'email':'test@example.com',
+            'nickname': 'test_nickname',
+            'password': 'test_password'
+        }
+        requests.post(url('user'), data=request_data)
+
     def test_signup(self):
         expected_status_codes = [codes.no_content, codes.conflict]
         request_data = {
@@ -105,6 +114,7 @@ class TestDungeonAsDB(unittest.TestCase):
         )
 
     def test_start_dungeon(self):
+        self.test_create_character()
         expected_status_codes = [codes.created, codes.conflict]
         response = requests.post(url('dungeon'), auth=auth)
         self.assertIn(
@@ -113,6 +123,7 @@ class TestDungeonAsDB(unittest.TestCase):
         )
         
     def test_dungeon_status(self):
+        self.test_start_dungeon()
         requests.get(url('dungeon'), auth=auth)
         response = requests.get(url('dungeon'), auth=auth)
         self.assertEqual(

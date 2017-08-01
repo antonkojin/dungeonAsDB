@@ -118,8 +118,14 @@ def start_dungeon():
             except db.IntegrityError as e:
                 app.logger.warning(e)
                 if e.pgcode == db.errorcodes.UNIQUE_VIOLATION:
-                    return ('', 409)
+                    return ('', 409) # conflict
+                elif e.pgcode == db.errorcodes.NOT_NULL_VIOLATION:
+                    return ('', 400) # bad request
                 else:
+                    app.logger.error(
+                        'pgcode: {}\npgerror: {}'
+                        .format(db.errorcodes.lookup(e.pgcode), e.pgerror)
+                    )
                     raise e
     return ('', 201)
 

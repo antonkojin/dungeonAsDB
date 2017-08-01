@@ -1,10 +1,10 @@
+/*
 INSERT INTO users (email, nickname, password_hash)
 VALUES ('test@test.com', 'nickname', 'password_hash');
 
 INSERT INTO characters (name, description, strength, intellect, dexterity, constitution, "user")
 VALUES ('test_name', 'test_description', 3, 3, 3, 3, 'test@test.com');
 
-/*
 INSERT INTO dungeons(character)
 VALUES(1);
 */
@@ -33,4 +33,4 @@ INSERT INTO enemies (name, description, attack, defence,
     ('enemy5', 'description5', 0, 0, 1, 0),
     ('enemy6', 'description6', 0, 0, 1, 0);
 
-SELECT create_dungeon('test@test.com');
+-- SELECT create_dungeon('test@test.com');
