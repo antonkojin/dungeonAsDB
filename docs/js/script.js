@@ -47,8 +47,8 @@ var api = function() {
         password = newPassword
         logged = true
         get(
-            '/user', 
-            null, 
+            '/user',
+            null,
             function(data, textStatus, XHR) {
                 if (XHR.status == 200) {
                     console.info('logged in')
@@ -95,7 +95,7 @@ modules.push(function() {
             {
                 email: form.find('#mail').val(),
                 nickname: form.find('#nickname').val(),
-                password: form.find('#password').val() 
+                password: form.find('#password').val()
             },
             function(data, textStatus, XHR) {
                 console.info('success data: %o status: %s', data, textStatus)
@@ -130,6 +130,27 @@ modules.push(function() {
 
     return {
         name: 'login-form',
+        init: init
+    }
+}())
+
+modules.push(function() {
+    var init = function() {
+        var includes = $('[include]')
+        $.each(includes, function(){
+            var include = $(this)
+            var file = include.attr('include')
+            $.get({
+                url: file,
+                success: function(data) {
+                    include.replaceWith(data)
+                }
+            })
+        })
+    }
+
+    return {
+        name: 'include',
         init: init
     }
 }())
