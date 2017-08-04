@@ -5,7 +5,13 @@ var api = function() {
     var password = null
     var logged = false
 
-    var init = function() {}
+    var init = function() {
+        var sessionEmail = sessionStorage.getItem('email')
+        var sessionPassword = sessionStorage.getItem('password')
+        if (sessionEmail && sessionPassword) {
+            login(sessionEmail, sessionPassword)
+        }
+    }
 
     var ajax = function(method, endpoint, data, success, error) {
         $.ajax({
@@ -44,6 +50,8 @@ var api = function() {
                 if (XHR.status == 200) {
                     console.info('logged in')
                     nickname = data.nickname
+                    sessionStorage.setItem('email', email)
+                    sessionStorage.setItem('password', password)
                 }
             },
             function(XHR, textStatus, errorThrown) {
@@ -55,6 +63,8 @@ var api = function() {
     }
 
     var logout = function() {
+        sessionStorage.removeItem('email')
+        sessionStorage.removeItem('password')
         logged = false
         nickname = null
     }
