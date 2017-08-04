@@ -1,1 +1,1 @@
-rest/requirements.txt
+api/requirements.txt

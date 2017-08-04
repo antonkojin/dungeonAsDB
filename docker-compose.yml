@@ -1,13 +1,13 @@
 version: '3'
 services:
-  rest:
+  api:
     restart: unless-stopped
-    build: rest/
-    image: rest
+    build: api/
+    image: api
     ports:
       - 8000:5000
     volumes:
-      - ./rest:/code
+      - ./api:/code
     environment:
       - DATABASE_URL=postgres://dungeon_as_db_superuser@db:5432/dungeon_as_db
   db:
