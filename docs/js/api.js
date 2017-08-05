@@ -1,6 +1,6 @@
 var api = function() {
     var apiUrl = 'https://progetto-db.herokuapp.com'
-    // var apiUrl = 'localhost:8000'
+    //var apiUrl = 'http://localhost:8000'
     var email = null
     var nickname = null
     var password = null
