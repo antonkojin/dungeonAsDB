@@ -9,7 +9,7 @@ var signup = function() {
     var submit_handler = function(event) {
         var form = $("#signup-form")
         api.post({
-            url: '/user',
+            url: 'user',
             data: {
                 email: form.find('#mail').val(),
                 nickname: form.find('#nickname').val(),
