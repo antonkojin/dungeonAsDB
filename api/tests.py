@@ -27,7 +27,7 @@ class TestDungeonAsDB(unittest.TestCase):
         if not heroku:
             print('set up')
             call('docker-compose up -d db', shell=True)
-            call('docker-compose up -d rest', shell=True)
+            call('docker-compose up -d api', shell=True)
             from time import sleep
             sleep(5)
         call(init_db_script, shell=True)
