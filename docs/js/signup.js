@@ -1,26 +1,29 @@
-modules.push(function() {
+var signup = function() {
     var init = function() {
-        var form = $("#signup-form") // TODO: fattorizzare
-        form.submit(submit_handler)
+        api.ifLogged(function() {
+            redirect.redirect('dungeon')
+        })
+        $("#signup-form").submit(submit_handler)
     }
 
     var submit_handler = function(event) {
-        console.info('event: %o', event)
-        var form = $("#signup-form") // TODO: fattorizzare
-        api.post(
-            '/user',
-            {
+        var form = $("#signup-form")
+        api.post({
+            url: '/user',
+            data: {
                 email: form.find('#mail').val(),
                 nickname: form.find('#nickname').val(),
                 password: form.find('#password').val()
             },
-            function(data, textStatus, XHR) {
-                console.info('success data: %o status: %s', data, textStatus)
-            },
-            function(XHR, textStatus, errorThrown) {
-                console.error('error error: %o status: %s', errorThrown, textStatus)
+            statusCode: {
+                204: function() {
+                   redirect.redirect('login') 
+                },
+                409: function() {
+                   console.error('no conflict handler') 
+                }
             }
-        )
+        })
         event.preventDefault()
     }
 
@@ -28,5 +31,7 @@ modules.push(function() {
         name: 'signup-form',
         init: init
     }
-}())
+}()
+
+$(signup.init)
 

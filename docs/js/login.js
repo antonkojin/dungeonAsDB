@@ -1,15 +1,19 @@
-modules.push(function() {
+var loginForm = function() {
     var init = function() {
-        var form = $("#login-form") // TODO: fattorizzare
-        form.submit(submit_handler)
+        api.ifLogged(function() {
+            redirect.redirect('dungeon')
+        })
+        $("#login-form").submit(submit_handler)
     }
 
     var submit_handler = function(event) {
-        console.info('event: %o', event)
-        var form = $("#login-form") // TODO: fattorizzare
+        var form = $("#login-form")
         var email = form.find('#mail').val()
         var password = form.find('#password').val()
-        var result = api.login(email, password)
+        api.login(email, password)
+        api.ifLogged(function() {
+           redirect.redirect('dungeon') 
+        })
         event.preventDefault()
     }
 
@@ -17,5 +21,6 @@ modules.push(function() {
         name: 'login-form',
         init: init
     }
-}())
+}()
 
+$(loginForm.init)

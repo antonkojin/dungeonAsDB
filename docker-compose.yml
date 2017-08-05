@@ -24,6 +24,7 @@ services:
     image: web
     volumes:
       - ./web/html:/usr/share/nginx/html:ro
+      - ./web/nginx.conf:/etc/nginx/nginx.conf:ro
     ports:
       - 80:80
       - 443:443
