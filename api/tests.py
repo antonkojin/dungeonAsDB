@@ -10,7 +10,7 @@ import sys
 if heroku: sys.argv = args[:1] + args[2:]
 host = 'https://progetto-db.herokuapp.com/' if heroku else 'http://localhost:8000/'
 from os.path import dirname, realpath
-init_db_script = 'heroku run db/heroku_init_db.py db/schema.sql db/data.sql' if heroku else dirname(realpath(__file__)) + '/../db/docker_init_db.sh'
+init_db_script = 'heroku run db/heroku_init_db.py db/schema.sql db/data.sql db/functions.sql' if heroku else dirname(realpath(__file__)) + '/../db/docker_init_db.sh'
 
 def url(path):
     return host + path
@@ -134,22 +134,21 @@ class TestDungeonAsDB(unittest.TestCase):
         
     def test_dungeon_status(self):
         self.test_start_dungeon()
-        requests.get(url('dungeon'), auth=auth)
         response = requests.get(url('dungeon'), auth=auth)
         self.assertEqual(
             response.status_code,
             codes.ok
         )
         response_json = response.json()
+        self.assertIn('character', response_json)
+        character = response_json['character']
+        self.assertIn('bag', character)
         self.assertIn('room', response_json)
         room = response_json['room']
         self.assertIn('description', room)
         self.assertIn('items', room)
         self.assertIn('enemies', room)
         self.assertIn('gates', room)
-        self.assertIn('character', response_json)
-        character = response_json['character']
-        self.assertIn('bag', character)
 
     @unittest.skip('')
     def test_cant_start_another_dungeon(self):

@@ -133,11 +133,11 @@ def start_dungeon():
 @auth.login_required
 def dungeon_status():
     email = auth.username()
-    query = 'SELECT dungeon_status(%s)'
+    query = 'SELECT dungeon_status(CAST (%s AS VARCHAR))'
     with db.connect(db_url) as connection:
         with connection.cursor() as cursor:
             cursor.execute(query, (email, ))
-            dungeon_status = cursor.fetchAll()
+            dungeon_status = cursor.fetchone()[0]
     return (jsonify(dungeon_status), 200)
 
     
