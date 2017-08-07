@@ -9,7 +9,8 @@ heroku = len(args) >=2 and args[1] == 'heroku'
 import sys
 if heroku: sys.argv = args[:1] + args[2:]
 host = 'https://progetto-db.herokuapp.com/' if heroku else 'http://localhost:8000/'
-init_db_script = 'heroku run db/heroku_init_db.py db/schema.sql db/data.sql' if heroku else '../db/docker_init_db.sh'
+from os.path import dirname, realpath
+init_db_script = 'heroku run db/heroku_init_db.py db/schema.sql db/data.sql' if heroku else dirname(realpath(__file__)) + '/../db/docker_init_db.sh'
 
 def url(path):
     return host + path
@@ -24,12 +25,6 @@ class TestDungeonAsDB(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         from subprocess import call
-        if not heroku:
-            print('set up')
-            call('docker-compose up -d db', shell=True)
-            call('docker-compose up -d api', shell=True)
-            from time import sleep
-            sleep(5)
         call(init_db_script, shell=True)
         request_data = {
             'email':'test@example.com',
@@ -37,14 +32,6 @@ class TestDungeonAsDB(unittest.TestCase):
             'password': 'test_password'
         }
         requests.post(url('user'), data=request_data)
-
-    @classmethod
-    def tearDownClass(cls):
-        if not heroku:
-            from subprocess import call
-            call('docker-compose stop', shell=True)
-            print('tear down')
-
 
     def test_signup(self):
         expected_status_codes = [codes.no_content, codes.conflict]
