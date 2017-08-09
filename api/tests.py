@@ -10,7 +10,7 @@ import sys
 if heroku: sys.argv = args[:1] + args[2:]
 host = 'https://progetto-db.herokuapp.com/' if heroku else 'http://localhost:8000/'
 from os.path import dirname, realpath
-init_db_script = 'heroku run db/heroku_init_db.py db/schema.sql db/data.sql db/functions.sql' if heroku else dirname(realpath(__file__)) + '/../db/docker_init_db.sh'
+init_db_script = 'heroku run db/heroku_init_db.py db/schema.sql db/data.sql db/functions.sql' if heroku else dirname(realpath(__file__)) + '/../db/docker_init_db.sh schema.sql functions.sql data.sql'
 
 def url(path):
     return host + path

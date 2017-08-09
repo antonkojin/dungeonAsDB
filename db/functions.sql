@@ -7,15 +7,16 @@ CREATE FUNCTION create_character(
     dexterity SMALLINT,
     constitution SMALLINT,
     email VARCHAR(254)
-) RETURNS void AS $$
-    BEGIN
+) RETURNS VOID AS $$
         INSERT INTO characters (
             name, 
             description, 
             strength, 
             intellect, 
             dexterity, 
-            constitution, 
+            constitution,
+            equipped_defence_item,
+            equipped_attack_item,
             "user"
         ) VALUES (
             name, 
@@ -24,10 +25,11 @@ CREATE FUNCTION create_character(
             intellect, 
             dexterity, 
             constitution, 
+            1,
+            2,
             email
         );
-    END;
-$$ LANGUAGE 'plpgsql';
+$$ LANGUAGE 'sql';
 
 DROP FUNCTION IF EXISTS create_room(INTEGER);
 CREATE FUNCTION create_room(
@@ -145,30 +147,70 @@ RETURNS void AS $$
     END;
 $$ LANGUAGE 'plpgsql';
 
-DROP FUNCTION IF EXISTS dungeon_status(VARCHAR);
-CREATE FUNCTION dungeon_status(user_email VARCHAR(254))
-RETURNS JSONB AS $$
-DECLARE
-    json JSONB = to_jsonb('{"character": {"bag": []}}'::TEXT);
-BEGIN
-    RETURN to_jsonb('{"character": {"bag": []}}'::TEXT);
-    json := jsonb_set(to_jsonb(json), '{"character", "bag"}', to_jsonb("character_bag")) FROM (
+DROP FUNCTION IF EXISTS get_character(VARCHAR);
+CREATE FUNCTION get_character(user_email VARCHAR(254)) 
+RETURNS TABLE(
+    name VARCHAR,
+    description VARCHAR,
+    defence_item INTEGER,
+    attack_item INTEGER
+)AS $$ 
+    SELECT (
+        characters.name, 
+        characters.description, 
+        equipped_defence_item, 
+        equipped_attack_item
+    )
+    FROM characters WHERE characters."user" = user_email;
 
-        SELECT items.name, items.description, items.attack, items.defence, items.wisdom, items.hit_points, items.category
+$$ LANGUAGE 'sql';
+
+DROP FUNCTION IF EXISTS get_character_items(VARCHAR);
+CREATE FUNCTION get_character_items(user_email VARCHAR(254)) 
+RETURNS TABLE (
+    id INTEGER,
+    name VARCHAR,
+    description VARCHAR,
+    category ITEM_CATEGORY
+)AS $$ 
+    (
+        SELECT items.id, items.name, items.description, items.category
         FROM characters JOIN character_items
         ON characters.id = character_items."character"
         JOIN items
-        ON character_items.item = items.id
+        ON items.id = character_items.item
         WHERE characters."user" = user_email
-    ) AS "character_bag";
-    return json;
-    json := (
-        SELECT jsonb_set('{}', '{character}', to_jsonb("character")) FROM (
-            SELECT characters.name, characters.description
-            FROM characters
-            WHERE characters."user" = user_email
-        ) AS "character"
+    )
+    UNION
+    (
+        SELECT items.id, items.name, items.description, items.category
+        FROM items JOIN characters
+        ON items.id = characters.equipped_defence_item
+        OR items.id = characters.equipped_attack_item
+        WHERE characters."user" = user_email
     );
-END
-$$ LANGUAGE 'plpgsql';
+$$ LANGUAGE 'sql';
 
+DROP FUNCTION IF EXISTS get_room(VARCHAR);
+CREATE FUNCTION get_room(user_email VARCHAR(254)) 
+RETURNS TABLE (
+    id INTEGER,
+    description VARCHAR
+)AS $$ 
+        SELECT rooms.id, rooms_descriptions.description
+        FROM characters JOIN dungeons
+        ON characters.id = dungeons."character"
+        JOIN rooms
+        ON rooms.id = dungeons.current_room
+        JOIN rooms_descriptions
+        ON rooms_descriptions.id = rooms.description
+        WHERE characters."user" = user_email
+$$ LANGUAGE 'sql';
+-- GET ROOM
+--    SELECT rooms_descriptions.description, dungeons.id, dungeons.current_room
+--    FROM dungeons JOIN rooms
+--    ON dungeons.current_room = rooms.id
+--    JOIN rooms_descriptions
+--    ON rooms_descriptions.id = rooms.description
+--    WHERE dungeons."character" = character_id
+--    INTO "room.description", dungeon_id, room_id;

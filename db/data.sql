@@ -16,12 +16,12 @@ VALUES (0, 'FINAL_ROOM');
 
 INSERT INTO items (name, description, attack, defence, wisdom, hit_points, category)
 VALUES 
+    ('shield1', 'description6', 0, 0, 0, 0, 'defence'),
+    ('sword1', 'description5', 0, 0, 0, 0, 'attack'),
     ('cons1', 'description1', 0, 0, 0, 0, 'consumable'),
     ('cons2', 'description2', 0, 0, 0, 0, 'consumable'),
     ('cons3', 'description3', 0, 0, 0, 0, 'consumable'),
-    ('cons4', 'description4', 0, 0, 0, 0, 'consumable'),
-    ('sword1', 'description5', 0, 0, 0, 0, 'attack'),
-    ('shield1', 'description6', 0, 0, 0, 0, 'defence');
+    ('cons4', 'description4', 0, 0, 0, 0, 'consumable');
 
 INSERT INTO enemies (name, description, attack, defence, 
     initial_hit_points, damage

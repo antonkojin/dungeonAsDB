@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 import psycopg2 as db
-import psycopg2.errorcodes
+from psycopg2 import errorcodes
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import check_password_hash
 from flask_cors import CORS
@@ -9,8 +9,10 @@ app = Flask(__name__)
 CORS(app)
 auth = HTTPBasicAuth()
 
+
 import os
 db_url = os.getenv('DATABASE_URL')
+
 
 def get_pw(email):
     query = 'SELECT password_hash FROM users WHERE email = %s'
@@ -21,16 +23,21 @@ def get_pw(email):
             result = cursor.fetchone()
     return result[0] if result is not None else None
 
+
 @auth.verify_password
 def verify_pw(username, password):
-    if not password: return False
+    if not password:
+        return False
     db_pw = get_pw(username)
-    if not db_pw: return False
+    if not db_pw:
+        return False
     return check_password_hash(db_pw, password)
+
 
 @app.route('/', methods=['GET'])
 def index():
     return ('Hello World', 200)
+
 
 @app.route('/user', methods=['POST'])
 def signup():
@@ -38,7 +45,7 @@ def signup():
     query = (
         'INSERT INTO users (email, nickname, password_hash) '
         'VALUES (%s, %s, %s)'
-    ) 
+    )
     values = (
         request.form['email'],
         request.form['nickname'],
@@ -53,6 +60,7 @@ def signup():
                 return ('', 409)
     return ('', 204)
 
+
 @app.route('/user', methods=['GET'])
 @auth.login_required
 def user():
@@ -66,9 +74,10 @@ def user():
         jsonify({
             'email': email,
             'nickname': nickname
-        }), 
+        }),
         200
     )
+
 
 @app.route('/character', methods=['POST'])
 @auth.login_required
@@ -102,9 +111,8 @@ def create_character():
                     return ('', 409)
                 else:
                     raise e
-                    
-
     return ('', 201)
+
 
 @app.route('/dungeon', methods=['POST'])
 @auth.login_required
@@ -118,9 +126,9 @@ def start_dungeon():
             except db.IntegrityError as e:
                 app.logger.warning(e)
                 if e.pgcode == db.errorcodes.UNIQUE_VIOLATION:
-                    return ('', 409) # conflict
+                    return ('', 409)  # conflict
                 elif e.pgcode == db.errorcodes.NOT_NULL_VIOLATION:
-                    return ('', 400) # bad request
+                    return ('', 400)  # bad request
                 else:
                     app.logger.error(
                         'pgcode: {}\npgerror: {}'
@@ -129,18 +137,41 @@ def start_dungeon():
                     raise e
     return ('', 201)
 
+
 @app.route('/dungeon', methods=['GET'])
 @auth.login_required
 def dungeon_status():
     email = auth.username()
-    query = 'SELECT dungeon_status(CAST (%s AS VARCHAR))'
+    query_get_character = 'SELECT * FROM get_character(CAST (%s AS VARCHAR))'
+    query_get_character_items = 'SELECT * FROM get_character_items(CAST (%s AS VARCHAR))'
+    query_get_room = 'SELECT * FROM get_room(CAST (%s AS VARCHAR))'
+
     with db.connect(db_url) as connection:
         with connection.cursor() as cursor:
-            cursor.execute(query, (email, ))
-            dungeon_status = cursor.fetchone()[0]
-    return (jsonify(dungeon_status), 200)
+            # character
+            cursor.execute(query_get_character, (email, ))
+            names = [d[0] for d in cursor.description]
+            values = cursor.fetchone()
+            print('character:', values)
+            character = dict(zip(names, values))
+            # character bag
+            cursor.execute(query_get_character_items, (email, ))
+            names = [d[0] for d in cursor.description]
+            rows = cursor.fetchall()
+            print('character items:', rows)
+            bag = [dict(zip(names, row)) for row in rows]
+            # room
+            cursor.execute(query_get_room, (email, ))
+            names = [d[0] for d in cursor.description]
+            values = cursor.fetchone()
+            print('room:', values)
+            room = dict(zip(names, values))
 
-    
+    dungeon = {}
+    character['bag'] = bag
+    dungeon['character'] = character
+    dungeon['room'] = room
+    return (jsonify(dungeon), 200)
 
 
 if __name__ == '__main__':
