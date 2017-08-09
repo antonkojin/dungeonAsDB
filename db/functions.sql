@@ -225,11 +225,31 @@ RETURNS TABLE (
         WHERE characters."user" = user_email
         AND room_items.hidden = false;
 $$ LANGUAGE 'sql';
--- GET ROOM
---    SELECT rooms_descriptions.description, dungeons.id, dungeons.current_room
---    FROM dungeons JOIN rooms
---    ON dungeons.current_room = rooms.id
---    JOIN rooms_descriptions
---    ON rooms_descriptions.id = rooms.description
---    WHERE dungeons."character" = character_id
---    INTO "room.description", dungeon_id, room_id;
+
+DROP FUNCTION IF EXISTS get_room_enemies(VARCHAR);
+CREATE FUNCTION get_room_enemies(user_email VARCHAR(254)) 
+RETURNS TABLE (
+    id INTEGER,
+    name VARCHAR,
+    description VARCHAR,
+    attack SMALLINT,
+    defence SMALLINT,
+    damage SMALLINT,
+    hit_points SMALLINT
+)AS $$ 
+        SELECT 
+            enemies.id, 
+            enemies.name, 
+            enemies.description, 
+            enemies.attack, 
+            enemies.defence, 
+            enemies.damage, 
+            room_enemies.current_hit_points
+        FROM characters JOIN dungeons
+        ON characters.id = dungeons."character"
+        JOIN room_enemies
+        ON room_enemies.room = dungeons.current_room
+        JOIN enemies
+        ON enemies.id = room_enemies.enemy
+        WHERE characters."user" = user_email;
+$$ LANGUAGE 'sql';
