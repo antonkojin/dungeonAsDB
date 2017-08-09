@@ -145,6 +145,7 @@ def dungeon_status():
     query_get_character = 'SELECT * FROM get_character(CAST (%s AS VARCHAR))'
     query_get_character_items = 'SELECT * FROM get_character_items(CAST (%s AS VARCHAR))'
     query_get_room = 'SELECT * FROM get_room(CAST (%s AS VARCHAR))'
+    query_get_room_items = 'SELECT * FROM get_room_items(CAST (%s AS VARCHAR))'
 
     with db.connect(db_url) as connection:
         with connection.cursor() as cursor:
@@ -159,17 +160,24 @@ def dungeon_status():
             names = [d[0] for d in cursor.description]
             rows = cursor.fetchall()
             print('character items:', rows)
-            bag = [dict(zip(names, row)) for row in rows]
+            character_bag = [dict(zip(names, row)) for row in rows]
             # room
             cursor.execute(query_get_room, (email, ))
             names = [d[0] for d in cursor.description]
             values = cursor.fetchone()
             print('room:', values)
             room = dict(zip(names, values))
+            # room visible items
+            cursor.execute(query_get_room_items, (email, ))
+            names = [d[0] for d in cursor.description]
+            rows = cursor.fetchall()
+            print('room items:', rows)
+            room_items = [dict(zip(names, row)) for row in rows]
 
     dungeon = {}
-    character['bag'] = bag
+    character['bag'] = character_bag
     dungeon['character'] = character
+    room['items'] = room_items
     dungeon['room'] = room
     return (jsonify(dungeon), 200)
 

@@ -206,6 +206,25 @@ RETURNS TABLE (
         ON rooms_descriptions.id = rooms.description
         WHERE characters."user" = user_email
 $$ LANGUAGE 'sql';
+
+DROP FUNCTION IF EXISTS get_room_items(VARCHAR);
+CREATE FUNCTION get_room_items(user_email VARCHAR(254)) 
+RETURNS TABLE (
+    id INTEGER,
+    name VARCHAR,
+    description VARCHAR,
+    category ITEM_CATEGORY
+)AS $$ 
+        SELECT items.id, items.name, items.description, items.category
+        FROM characters JOIN dungeons
+        ON characters.id = dungeons."character"
+        JOIN room_items
+        ON room_items.room = dungeons.current_room
+        JOIN items
+        ON items.id = room_items.item
+        WHERE characters."user" = user_email
+        AND room_items.hidden = false;
+$$ LANGUAGE 'sql';
 -- GET ROOM
 --    SELECT rooms_descriptions.description, dungeons.id, dungeons.current_room
 --    FROM dungeons JOIN rooms
