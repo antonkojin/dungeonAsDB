@@ -7,6 +7,7 @@ from sys import argv as args
 
 db_url = getenv('DATABASE_URL')
 with db.connect(db_url) as connection:
+    connection.autocommit = True
     with connection.cursor() as cursor:
         for file in args[1:]:
             with open(file, 'r') as sql:
