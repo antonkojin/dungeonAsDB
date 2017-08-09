@@ -253,3 +253,25 @@ RETURNS TABLE (
         ON enemies.id = room_enemies.enemy
         WHERE characters."user" = user_email;
 $$ LANGUAGE 'sql';
+
+DROP FUNCTION IF EXISTS get_room_gates(VARCHAR);
+CREATE FUNCTION get_room_gates(user_email VARCHAR(254)) 
+RETURNS TABLE (
+    id INTEGER,
+    room INTEGER
+) AS $$ 
+        SELECT gates.id,
+        CASE 
+            WHEN dungeons.current_room = gates.room_from
+            THEN gates.room_to
+            ELSE gates.room_from
+        END
+        FROM characters JOIN dungeons
+        ON characters.id = dungeons."character"
+        JOIN gates
+        ON gates.room_from = dungeons.current_room
+        OR gates.room_to = dungeons.current_room
+        WHERE characters."user" = user_email
+        AND gates.hidden = false;
+$$ LANGUAGE 'sql';
+
