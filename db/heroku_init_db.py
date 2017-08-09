@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import psycopg2 as db
-from psycopg2 import StandardError
 from os import getenv
 from sys import argv as args
 
@@ -12,5 +11,5 @@ with db.connect(db_url) as connection:
             with open(file, 'r') as sql:
                 try:
                     cursor.execute(sql.read())
-                except db.StandardError as e:
+                except StandardError as e:
                     print(e)
