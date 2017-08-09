@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import psycopg2 as db
+from psycopg2 import StandardError
 from os import getenv
 from sys import argv as args
 
