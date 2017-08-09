@@ -9,4 +9,7 @@ with db.connect(db_url) as connection:
     with connection.cursor() as cursor:
         for file in args[1:]:
             with open(file, 'r') as sql:
-                cursor.execute(sql.read())
+                try:
+                    cursor.execute(sql.read())
+                except db.StandardError as e:
+                    print(e)
