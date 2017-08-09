@@ -142,7 +142,22 @@ class TestDungeonAsDB(unittest.TestCase):
         response_json = response.json()
         self.assertIn('character', response_json)
         character = response_json['character']
+        self.assertIn('name', character)
+        self.assertIn('description', character)
+        self.assertIn('attack_item', character)
+        self.assertIn('defence_item', character)
         self.assertIn('bag', character)
+        bag = character['bag']
+        self.assertTrue(len(bag) >= 2)
+        item = bag[0]
+        self.assertIn('id', item)
+        self.assertIn('name', item)
+        self.assertIn('description', item)
+        self.assertIn('attack', item)
+        self.assertIn('defence', item)
+        self.assertIn('wisdom', item)
+        self.assertIn('hit_points', item)
+        self.assertIn('category', item)
         self.assertIn('room', response_json)
         room = response_json['room']
         self.assertIn('description', room)

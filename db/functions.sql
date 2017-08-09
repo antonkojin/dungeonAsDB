@@ -171,10 +171,15 @@ RETURNS TABLE (
     id INTEGER,
     name VARCHAR,
     description VARCHAR,
+	attack SMALLINT,
+    defence SMALLINT,
+    wisdom SMALLINT,
+    hit_points SMALLINT,
     category ITEM_CATEGORY
 )AS $$ 
     (
-        SELECT items.id, items.name, items.description, items.category
+        SELECT items.id, items.name, items.description, items.attack,
+            items.defence, items.wisdom, items.hit_points, items.category
         FROM characters JOIN character_items
         ON characters.id = character_items."character"
         JOIN items
@@ -183,7 +188,8 @@ RETURNS TABLE (
     )
     UNION
     (
-        SELECT items.id, items.name, items.description, items.category
+        SELECT items.id, items.name, items.description, items.attack,
+            items.defence, items.wisdom, items.hit_points, items.category
         FROM items JOIN characters
         ON items.id = characters.equipped_defence_item
         OR items.id = characters.equipped_attack_item

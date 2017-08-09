@@ -190,6 +190,16 @@ def dungeon_status():
 
     dungeon = {}
     character['bag'] = character_bag
+    character['defence_item'] = [
+        item 
+        for item in character_bag
+        if item['id'] == character['defence_item']
+    ][0]
+    character['attack_item'] = [
+        item 
+        for item in character_bag
+        if item['id'] == character['attack_item']
+    ][0]
     dungeon['character'] = character
     room['items'] = room_items
     room['enemies'] = room_enemies
