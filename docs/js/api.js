@@ -26,7 +26,6 @@ var api = function() {
         var localEmail = localStorage.getItem('email');
         var localPassword = localStorage.getItem('password');
         if (localEmail && localPassword) {
-            console.info('local: %s:%s', localEmail, localPassword);
             logged = true;
         } else {
             logged = false;
