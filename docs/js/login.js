@@ -10,10 +10,13 @@ var loginForm = function() {
         var form = $("#login-form")
         var email = form.find('#mail').val()
         var password = form.find('#password').val()
-        api.login(email, password)
-        api.ifLogged(function() {
+        success = function() {
            redirect.redirect('dungeon') 
-        })
+        }
+        deny = function() {
+            console.warn("undefined callback on login fail!!!")
+        }
+        api.login(email, password, success, deny)
         event.preventDefault()
     }
 
