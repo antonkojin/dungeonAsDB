@@ -1,13 +1,13 @@
 var signup = function() {
     var init = function() {
         api.ifLogged(function() {
-            redirect.redirect('dungeon')
-        })
-        $("#signup-form").submit(submit_handler)
-    }
+            redirect.redirect('dungeon');
+        });
+        $("#signup-form").submit(submit_handler);
+    };
 
     var submit_handler = function(event) {
-        var form = $("#signup-form")
+        var form = $("#signup-form");
         api.post({
             url: 'user',
             data: {
@@ -17,21 +17,21 @@ var signup = function() {
             },
             statusCode: {
                 204: function() {
-                   redirect.redirect('login') 
+                   redirect.redirect('login');
                 },
                 409: function() {
-                   console.error('no conflict handler') 
+                   console.error('no conflict handler');
                 }
             }
-        })
-        event.preventDefault()
-    }
+        });
+        event.preventDefault();
+    };
 
     return {
         name: 'signup-form',
         init: init
-    }
-}()
+    };
+}();
 
-$(signup.init)
+$(signup.init);
 

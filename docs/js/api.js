@@ -1,5 +1,5 @@
 var api = function() {
-    var apiUrl = 'https://progetto-db.herokuapp.com'
+    var apiUrl = 'https://progetto-db.herokuapp.com';
     // var apiUrl = 'http://localhost:8000';
     var email = null;
     var nickname = null;

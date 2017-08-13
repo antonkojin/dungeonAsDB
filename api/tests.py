@@ -4,20 +4,25 @@ import unittest
 import requests
 from requests import codes
 from sys import argv as args
-
-heroku = len(args) >=2 and args[1] == 'heroku'
 import sys
-if heroku: sys.argv = args[:1] + args[2:]
+
+heroku = len(args) >= 2 and args[1] == 'heroku'
+if heroku:
+    sys.argv = args[:1] + args[2:]
 host = 'https://progetto-db.herokuapp.com/' if heroku else 'http://localhost:8000/'
 from os.path import dirname, realpath
-init_db_script = 'heroku run db/heroku_init_db.py db/schema.sql db/data.sql db/functions.sql' if heroku else dirname(realpath(__file__)) + '/../db/docker_init_db.sh schema.sql functions.sql data.sql'
-clean_db_script = 'heroku run db/heroku_init_db.py db/schema.sql db/data.sql' if heroku else dirname(realpath(__file__)) + '/../db/docker_init_db.sh schema.sql data.sql'
+init_db_script = 'heroku run db/heroku_init_db.py db/schema.sql db/data.sql db/functions.sql' if heroku else dirname(
+        realpath(__file__)) + '/../db/docker_init_db.sh schema.sql functions.sql data.sql'
+clean_db_script = 'heroku run db/heroku_init_db.py db/schema.sql db/data.sql' if heroku else dirname(
+        realpath(__file__)) + '/../db/docker_init_db.sh schema.sql data.sql'
+
 
 def url(path):
     return host + path
 
+
 user = {
-    'email':'test@example.com',
+    'email': 'test@example.com',
     'nickname': 'test_nickname',
     'password': 'test_password'
 }
@@ -27,6 +32,7 @@ auth = (
     user['password']
 )
 
+
 class TestDungeonAsDB(unittest.TestCase):
 
     @classmethod
@@ -34,18 +40,19 @@ class TestDungeonAsDB(unittest.TestCase):
         from os import devnull
         import subprocess
         with open(devnull, 'w') as DEVNULL:
-            subprocess.call(init_db_script, shell=True, stdout=DEVNULL, stderr=subprocess.STDOUT)
+            subprocess.call(init_db_script, shell=True,
+                            stdout=DEVNULL, stderr=subprocess.STDOUT)
 
     def tearDown(self):
         from os import devnull
         import subprocess
         with open(devnull, 'w') as DEVNULL:
-            subprocess.call(clean_db_script, shell=True, stdout=DEVNULL, stderr=subprocess.STDOUT)
-
+            subprocess.call(clean_db_script, shell=True,
+                            stdout=DEVNULL, stderr=subprocess.STDOUT)
 
     def test_signup(self):
         request_data = {
-            'email':'test@example.com',
+            'email': 'test@example.com',
             'nickname': 'test_nickname',
             'password': 'test_password'
         }
@@ -59,7 +66,7 @@ class TestDungeonAsDB(unittest.TestCase):
         self.test_signup()
         response = requests.get(url('user'), auth=auth)
         self.assertEqual(
-            response.status_code, 
+            response.status_code,
             codes.ok
         )
         self.assertEqual(response.json()['email'], user['email'])
@@ -73,7 +80,7 @@ class TestDungeonAsDB(unittest.TestCase):
         )
         response = requests.get(url('user'), auth=auth)
         self.assertEqual(
-            response.status_code, 
+            response.status_code,
             codes.unauthorized
         )
 
@@ -90,7 +97,7 @@ class TestDungeonAsDB(unittest.TestCase):
         }
         response = requests.post(url('character'), auth=auth, data=data)
         self.assertIn(
-            response.status_code, 
+            response.status_code,
             expected_status_codes
         )
 
@@ -113,9 +120,10 @@ class TestDungeonAsDB(unittest.TestCase):
             'constitution': 10
         }
         requests.post(url('character'), auth=auth, data=data)
-        response = requests.post(url('character'), auth=auth, data=another_data)
+        response = requests.post(
+            url('character'), auth=auth, data=another_data)
         self.assertEqual(
-            response.status_code, 
+            response.status_code,
             codes.conflict
         )
 
@@ -131,7 +139,7 @@ class TestDungeonAsDB(unittest.TestCase):
         }
         response = requests.post(url('character'), auth=auth, data=data)
         self.assertEqual(
-            response.status_code, 
+            response.status_code,
             codes.bad_request
         )
 
@@ -140,10 +148,10 @@ class TestDungeonAsDB(unittest.TestCase):
         expected_status_codes = [codes.created, codes.conflict]
         response = requests.post(url('dungeon'), auth=auth)
         self.assertIn(
-            response.status_code, 
+            response.status_code,
             expected_status_codes
         )
-        
+
     def test_dungeon_status(self):
         self.test_start_dungeon()
         response = requests.get(url('dungeon'), auth=auth)
@@ -182,7 +190,7 @@ class TestDungeonAsDB(unittest.TestCase):
         requests.post(url('dungeon'), auth=auth)
         response = requests.post(url('dungeon'), auth=auth)
         self.assertEqual(
-            response.status_code, 
+            response.status_code,
             codes.conflict
         )
 
@@ -191,17 +199,17 @@ class TestDungeonAsDB(unittest.TestCase):
         requests.post(url('dungeon'), auth=auth)
         response = requests.post(url('dungeon'), auth=auth)
         self.assertEqual(
-            response.status_code, 
+            response.status_code,
             codes.conflict
         )
         response = requests.delete(url('dungeon'), auth=auth)
         self.assertEqual(
-            response.status_code, 
+            response.status_code,
             codes.ok
         )
         response = requests.post(url('dungeon'), auth=auth)
         self.assertEqual(
-            response.status_code, 
+            response.status_code,
             codes.created
         )
 
@@ -209,7 +217,8 @@ class TestDungeonAsDB(unittest.TestCase):
     def test_take_item_from_room(self):
         response = requests.get(url('dungeon'), auth=auth)
         items = response.json()['room']['items']
-        if len(items) == 0: self.skipTest('can\'t test, there\'s no items here') 
+        if len(items) == 0:
+            self.skipTest('can\'t test, there\'s no items here')
         response = requests.put(
             url('dungeon/item/{item}'.format(item=item)),
             auth=auth
@@ -243,12 +252,12 @@ class TestDungeonAsDB(unittest.TestCase):
         character = response.json()['character']
         items = character['bag']
         consumable_items = [
-            item 
-            for item in items 
+            item
+            for item in items
             if item['type'] == 'consumable'
         ]
         if len(consumable_items) == 0:
-            self.skipTest('can\'t test, don\'t have consumable items') 
+            self.skipTest('can\'t test, don\'t have consumable items')
         item = consumable_items[0]
         response = requests.put(
             url('dungeon/bag/{item}'.format(item=item['id'])),
@@ -282,22 +291,22 @@ class TestDungeonAsDB(unittest.TestCase):
         character = response.json()['character']
         items = character['bag']
         wearable_items = [
-            item 
-            for item in items 
+            item
+            for item in items
             if item['type'] == 'defence'
             and (
                 item['id'] != character['equipped_defece_item']['id']
-                if character['equipped_defence_item'] 
+                if character['equipped_defence_item']
                 else None
             )
             and (
                 item['id'] != character['equipped_attack_item']['id']
-                if character['equipped_attack_item'] 
+                if character['equipped_attack_item']
                 else None
             )
         ]
         if len(wearable_items) == 0:
-            self.skipTest('can\'t test, don\'t have other wearable items') 
+            self.skipTest('can\'t test, don\'t have other wearable items')
         item = wearable_items[0]
         response = requests.put(
             url('dungeon/bag/{item}'.format(item=item['id'])),
@@ -315,15 +324,14 @@ class TestDungeonAsDB(unittest.TestCase):
         self.assertNotEqual(
             updated_character[item['type'] + '_item'][id],
             character[item['type'] + '_item'][id]
-                if character[item['type'] + '_item'] 
-                else None
+            if character[item['type'] + '_item']
+            else None
         )
 
 
 if __name__ == '__main__':
     from colour_runner.runner import ColourTextTestRunner
     unittest.main(
-        verbosity=2, 
+        verbosity=2,
         testRunner=ColourTextTestRunner
     )
-
