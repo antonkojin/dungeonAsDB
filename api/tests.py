@@ -11,56 +11,65 @@ if heroku: sys.argv = args[:1] + args[2:]
 host = 'https://progetto-db.herokuapp.com/' if heroku else 'http://localhost:8000/'
 from os.path import dirname, realpath
 init_db_script = 'heroku run db/heroku_init_db.py db/schema.sql db/data.sql db/functions.sql' if heroku else dirname(realpath(__file__)) + '/../db/docker_init_db.sh schema.sql functions.sql data.sql'
+clean_db_script = 'heroku run db/heroku_init_db.py db/schema.sql db/data.sql' if heroku else dirname(realpath(__file__)) + '/../db/docker_init_db.sh schema.sql data.sql'
 
 def url(path):
     return host + path
 
+user = {
+    'email':'test@example.com',
+    'nickname': 'test_nickname',
+    'password': 'test_password'
+}
+
 auth = (
-    'test@example.com',
-    'test_password'
+    user['email'],
+    user['password']
 )
 
 class TestDungeonAsDB(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        from subprocess import call
-        call(init_db_script, shell=True)
-        request_data = {
-            'email':'test@example.com',
-            'nickname': 'test_nickname',
-            'password': 'test_password'
-        }
-        requests.post(url('user'), data=request_data)
+        from os import devnull
+        import subprocess
+        with open(devnull, 'w') as DEVNULL:
+            subprocess.call(init_db_script, shell=True, stdout=DEVNULL, stderr=subprocess.STDOUT)
+
+    def tearDown(self):
+        from os import devnull
+        import subprocess
+        with open(devnull, 'w') as DEVNULL:
+            subprocess.call(clean_db_script, shell=True, stdout=DEVNULL, stderr=subprocess.STDOUT)
+
 
     def test_signup(self):
-        expected_status_codes = [codes.no_content, codes.conflict]
         request_data = {
             'email':'test@example.com',
             'nickname': 'test_nickname',
             'password': 'test_password'
         }
         response = requests.post(url('user'), data=request_data)
-        self.assertIn(
-            response.status_code, 
-            expected_status_codes
+        self.assertEqual(
+            response.status_code,
+            codes.no_content
         )
 
     def test_login(self):
-        email = 'test@example.com'
-        nickname = 'test_nickname'
+        self.test_signup()
         response = requests.get(url('user'), auth=auth)
         self.assertEqual(
             response.status_code, 
             codes.ok
         )
-        self.assertEqual(response.json()['email'], email)
-        self.assertEqual(response.json()['nickname'], nickname)
+        self.assertEqual(response.json()['email'], user['email'])
+        self.assertEqual(response.json()['nickname'], user['nickname'])
 
     def test_cant_login_with_wrong_password(self):
+        self.test_signup()
         auth = (
-            'test@example.com',
-            'test_password_wrong'
+            user['email'],
+            user['password'] + '_wrong'
         )
         response = requests.get(url('user'), auth=auth)
         self.assertEqual(
@@ -69,7 +78,8 @@ class TestDungeonAsDB(unittest.TestCase):
         )
 
     def test_create_character(self):
-        expected_status_codes = [codes.created, codes.conflict]
+        self.test_signup()
+        expected_status_codes = [codes.created]
         data = {
             'name': 'test_character_name',
             'description': 'test_character_not_very_long_description',
@@ -85,6 +95,7 @@ class TestDungeonAsDB(unittest.TestCase):
         )
 
     def test_cant_create_another_character(self):
+        self.test_create_character()
         data = {
             'name': 'test_character_name',
             'description': 'test_character_not_very_long_description',
@@ -109,6 +120,7 @@ class TestDungeonAsDB(unittest.TestCase):
         )
 
     def test_cant_create_wrong_character(self):
+        self.test_signup()
         data = {
             'name': 'test_character_name',
             'description': 'test_character_not_very_long_description',
