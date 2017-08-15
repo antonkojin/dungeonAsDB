@@ -14,6 +14,11 @@ VALUES ('[description test]');
 INSERT INTO rooms_descriptions (id, description)
 VALUES (0, 'FINAL_ROOM');
 
+INSERT INTO defaults (key, value) VALUES 
+('final_room_description', 0),
+('initial_defence_item', 1),
+('initial_attack_item', 2);
+
 INSERT INTO items (name, description, attack, defence, wisdom, hit_points, category)
 VALUES 
     ('shield1', 'description6', 0, 0, 0, 0, 'defence'),

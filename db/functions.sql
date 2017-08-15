@@ -25,8 +25,12 @@ CREATE FUNCTION create_character(
             intellect, 
             dexterity, 
             constitution, 
-            1,
-            2,
+            (
+                SELECT value FROM defaults WHERE key = 'initial_defence_item'
+            ),
+            (
+                SELECT value FROM defaults WHERE key = 'initial_attack_item'   
+            ),
             email
         );
 $$ LANGUAGE 'sql';
@@ -79,7 +83,6 @@ CREATE FUNCTION generate_rooms(
     DECLARE
         n_rooms_visible_path CONSTANT SMALLINT := 5;
         n_other_rooms CONSTANT SMALLINT := 5;
-        final_room_description CONSTANT INTEGER := 0;
         previous_room INTEGER;
     BEGIN
         -- create start_room
@@ -117,8 +120,12 @@ CREATE FUNCTION generate_rooms(
         WHERE random() > 0.5; -- with probability of 1/2
         -- create the final final_room
         INSERT INTO rooms (dungeon, description)
-        VALUES (dungeon_id, final_room_description)
-        RETURNING id INTO final_room;
+        VALUES (
+            dungeon_id, 
+            (
+                SELECT value FROM defaults WHERE key = 'final_room_description'
+            )
+        ) RETURNING id INTO final_room;
         -- create visible gate from previous final_room to final final_room
         INSERT INTO gates (dungeon, room_from, room_to, hidden)
         VALUES (dungeon_id, previous_room, final_room, false);
@@ -162,7 +169,6 @@ RETURNS TABLE(
         equipped_attack_item
     )
     FROM characters WHERE characters."user" = user_email;
-
 $$ LANGUAGE 'sql';
 
 DROP FUNCTION IF EXISTS get_character_items(VARCHAR);
@@ -179,7 +185,7 @@ RETURNS TABLE (
 )AS $$ 
     (
         SELECT items.id, items.name, items.description, items.attack,
-            items.defence, items.wisdom, items.hit_points, items.category
+        items.defence, items.wisdom, items.hit_points, items.category
         FROM characters JOIN character_items
         ON characters.id = character_items."character"
         JOIN items
