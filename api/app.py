@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 import psycopg2 as db
 from psycopg2 import errorcodes
+from psycopg2.extras import RealDictCursor as RealDictCursor
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import check_password_hash
 from flask_cors import CORS
@@ -77,6 +78,18 @@ def user():
         }),
         200
     )
+
+
+@app.route('/dices', methods=['GET'])
+@auth.login_required
+def get_dices_for_character_creation():
+    query_get_dices = 'SELECT * FROM get_character_dices(CAST (%s AS VARCHAR))'
+    values = (auth.username(), )
+    with db.connect(db_url) as connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(query_get_dices, values)
+            dices = cursor.fetchall()
+    return (jsonify(dices), 200)
 
 
 @app.route('/character', methods=['POST'])

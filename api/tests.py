@@ -86,19 +86,26 @@ class TestDungeonAsDB(unittest.TestCase):
 
     def test_create_character(self):
         self.test_signup()
-        expected_status_codes = [codes.created]
+        response = requests.get(url('dices'), auth=auth)
+        self.assertEqual(response.status_code, codes.ok)
+        rolls = response.json()
+        self.assertEqual(len(rolls), 5)
+        for roll in rolls:
+            self.assertTrue(roll['dice_1'] >= 1 and roll['dice_1'] <= 6)
+            self.assertTrue(roll['dice_2'] >= 1 and roll['dice_2'] <= 6)
+            self.assertTrue(roll['dice_3'] >= 1 and roll['dice_3'] <= 6)
         data = {
             'name': 'test_character_name',
             'description': 'test_character_not_very_long_description',
-            'strength': 18,
-            'intellect': 10,
-            'dexterity': 3,
-            'constitution': 17
+            'strength': rolls[0]['id'],
+            'intellect': rolls[1]['id'],
+            'dexterity': rolls[2]['id'],
+            'constitution': rolls[3]['id']
         }
         response = requests.post(url('character'), auth=auth, data=data)
-        self.assertIn(
+        self.assertEqual(
             response.status_code,
-            expected_status_codes
+            codes.created
         )
 
     def test_cant_create_another_character(self):

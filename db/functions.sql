@@ -2,10 +2,10 @@ DROP FUNCTION IF EXISTS create_character(character varying,character varying,sma
 CREATE FUNCTION create_character(
     name VARCHAR(20), 
     description VARCHAR,
-    strength SMALLINT,
-    intellect SMALLINT,
-    dexterity SMALLINT,
-    constitution SMALLINT,
+    strength_roll INTEGER,
+    intellect_roll INTEGER,
+    dexterity_roll INTEGER,
+    constitution_roll INTEGER,
     email VARCHAR(254)
 ) RETURNS VOID AS $$
         INSERT INTO characters (
@@ -21,10 +21,26 @@ CREATE FUNCTION create_character(
         ) VALUES (
             name, 
             description, 
-            strength, 
-            intellect, 
-            dexterity, 
-            constitution, 
+            (
+                SELECT dice_1 + dice_2 + dice_3
+                FROM rolls
+                WHERE id = strength_roll
+            ), 
+            (
+                SELECT dice_1 + dice_2 + dice_3
+                FROM rolls
+                WHERE id = intellect_roll
+            ), 
+            (
+                SELECT dice_1 + dice_2 + dice_3
+                FROM rolls
+                WHERE id = dexterity_roll
+            ), 
+            (
+                SELECT dice_1 + dice_2 + dice_3
+                FROM rolls
+                WHERE id = constitution_roll
+            ), 
             (
                 SELECT value FROM defaults WHERE key = 'initial_defence_item'
             ),
@@ -287,3 +303,27 @@ RETURNS TABLE (
         AND gates.hidden = false;
 $$ LANGUAGE 'sql';
 
+DROP FUNCTION IF EXISTS get_character_dices(VARCHAR);
+CREATE FUNCTION get_character_dices(user_email VARCHAR(254)) 
+RETURNS TABLE (
+    id INTEGER,
+    dice_1 SMALLINT,
+    dice_2 SMALLINT, 
+    dice_3 SMALLINT
+) AS $$
+BEGIN
+    PERFORM rolls.id, rolls.dice_1, rolls.dice_2, rolls.dice_3
+    FROM rolls WHERE rolls."user" = user_email;
+    IF NOT FOUND THEN
+        INSERT INTO rolls (dice_1, dice_2, dice_3, "user")
+        VALUES 
+        (floor(random() * 6) + 1, floor(random() * 6) + 1, floor(random() * 6) + 1, user_email),
+        (floor(random() * 6) + 1, floor(random() * 6) + 1, floor(random() * 6) + 1, user_email),
+        (floor(random() * 6) + 1, floor(random() * 6) + 1, floor(random() * 6) + 1, user_email),
+        (floor(random() * 6) + 1, floor(random() * 6) + 1, floor(random() * 6) + 1, user_email),
+        (floor(random() * 6) + 1, floor(random() * 6) + 1, floor(random() * 6) + 1, user_email);
+    END IF;
+    RETURN QUERY SELECT rolls.id, rolls.dice_1, rolls.dice_2, rolls.dice_3
+    FROM rolls WHERE rolls."user" = user_email;
+END;
+$$ LANGUAGE 'plpgsql';
