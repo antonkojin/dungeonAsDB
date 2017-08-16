@@ -1,14 +1,3 @@
-/*
-INSERT INTO users (email, nickname, password_hash)
-VALUES ('test@test.com', 'nickname', 'password_hash');
-
-INSERT INTO characters (name, description, strength, intellect, dexterity, constitution, "user")
-VALUES ('test_name', 'test_description', 3, 3, 3, 3, 'test@test.com');
-
-INSERT INTO dungeons(character)
-VALUES(1);
-*/
-
 INSERT INTO rooms_descriptions (description)
 VALUES ('[description test]');
 INSERT INTO rooms_descriptions (id, description)
