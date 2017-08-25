@@ -186,6 +186,15 @@ class TestDungeonAsDB(unittest.TestCase):
             codes.created
         )
 
+    def test_cant_start_another_dungeon(self):
+        self.test_start_dungeon()
+        requests.post(url('dungeon'), auth=auth)
+        response = requests.post(url('dungeon'), auth=auth)
+        self.assertEqual(
+            response.status_code,
+            codes.conflict
+        )
+
     def test_dungeon_status(self):
         self.test_start_dungeon()
         response = requests.get(url('dungeon'), auth=auth)
@@ -259,15 +268,6 @@ class TestDungeonAsDB(unittest.TestCase):
         for gate in room_gates:
             self.assertIn('id', gate)
             self.assertIn('room', gate)
-
-    @unittest.skip('')
-    def test_cant_start_another_dungeon(self):
-        requests.post(url('dungeon'), auth=auth)
-        response = requests.post(url('dungeon'), auth=auth)
-        self.assertEqual(
-            response.status_code,
-            codes.conflict
-        )
 
     @unittest.skip('')
     def test_terminate_dungeon(self):
