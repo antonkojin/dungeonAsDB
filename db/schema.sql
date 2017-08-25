@@ -87,7 +87,7 @@ CREATE TABLE dungeons (
 	final_room INTEGER REFERENCES rooms(id)
 );
 
-ALTER TABLE rooms ADD CONSTRAINT rooms_dungeon_fkey FOREIGN KEY (dungeon) REFERENCES dungeons(id);
+ALTER TABLE rooms ADD CONSTRAINT rooms_dungeon_fkey FOREIGN KEY (dungeon) REFERENCES dungeons(id) ON DELETE CASCADE;
 
 CREATE TABLE character_items (
 	id SERIAL PRIMARY KEY,
@@ -107,23 +107,23 @@ CREATE TABLE enemies (
 
 CREATE TABLE room_enemies (
 	id SERIAL PRIMARY KEY,
-	room INTEGER REFERENCES rooms(id) NOT NULL,
+	room INTEGER NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
 	enemy INTEGER REFERENCES enemies(id) NOT NULL,
 	current_hit_points SMALLINT NOT NULL
 );
 
 CREATE TABLE room_items (
 	id SERIAL PRIMARY KEY,
-	room INTEGER REFERENCES rooms(id) NOT NULL,
+	room INTEGER NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
 	item INTEGER REFERENCES items(id) NOT NULL,
 	hidden BOOLEAN NOT NULL
 );
 
 CREATE TABLE gates (
 	id SERIAL PRIMARY KEY,
-    dungeon INTEGER REFERENCES dungeons(id) NOT NULL,
-	room_from INTEGER REFERENCES rooms(id) NOT NULL,
-	room_to INTEGER REFERENCES rooms(id) NOT NULL,
+    dungeon INTEGER NOT NULL REFERENCES dungeons(id) ON DELETE CASCADE,
+	room_from INTEGER NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
+	room_to INTEGER NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
 	hidden BOOLEAN NOT NULL,
     UNIQUE (dungeon, room_from, room_to),
     UNIQUE (dungeon, room_to, room_from)

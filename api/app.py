@@ -224,6 +224,17 @@ def dungeon_status():
     return (jsonify(dungeon), 200)
 
 
+@app.route('/dungeon', methods=['DELETE'])
+@auth.login_required
+def end_dungeon():
+    email = auth.username()
+    query_end_dungeon = 'SELECT end_dungeon(CAST (%s AS VARCHAR))'
+    with db.connect(db_url) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(query_end_dungeon, (email, ))
+    return ('', 200)
+
+
 if __name__ == '__main__':
     from os import getenv
     app.run(

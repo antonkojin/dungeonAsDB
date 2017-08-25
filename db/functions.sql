@@ -362,3 +362,10 @@ RETURNS TABLE (
         WHERE characters."user" = user_email
         AND gates.hidden = false;
 $$ LANGUAGE 'sql';
+
+DROP FUNCTION IF EXISTS end_dungeon(VARCHAR);
+CREATE FUNCTION end_dungeon(user_email VARCHAR(254)) RETURNS VOID AS $$
+    DELETE FROM dungeons WHERE dungeons."character" = (
+        SELECT id FROM characters WHERE "user" = user_email LIMIT 1
+    );
+$$ LANGUAGE 'sql';

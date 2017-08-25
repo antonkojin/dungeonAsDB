@@ -269,22 +269,18 @@ class TestDungeonAsDB(unittest.TestCase):
             self.assertIn('id', gate)
             self.assertIn('room', gate)
 
-    @unittest.skip('')
-    def test_terminate_dungeon(self):
-        requests.post(url('dungeon'), auth=auth)
-        response = requests.post(url('dungeon'), auth=auth)
+    def test_end_dungeon(self):
+        self.test_start_dungeon()
         self.assertEqual(
-            response.status_code,
+            requests.post(url('dungeon'), auth=auth).status_code,
             codes.conflict
         )
-        response = requests.delete(url('dungeon'), auth=auth)
         self.assertEqual(
-            response.status_code,
+            requests.delete(url('dungeon'), auth=auth).status_code,
             codes.ok
         )
-        response = requests.post(url('dungeon'), auth=auth)
         self.assertEqual(
-            response.status_code,
+            requests.post(url('dungeon'), auth=auth).status_code,
             codes.created
         )
 
