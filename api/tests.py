@@ -178,14 +178,12 @@ class TestDungeonAsDB(unittest.TestCase):
             codes.bad_request
         )
 
-    @unittest.skip('')
     def test_start_dungeon(self):
         self.test_create_character()
-        expected_status_codes = [codes.created, codes.conflict]
         response = requests.post(url('dungeon'), auth=auth)
-        self.assertIn(
+        self.assertEqual(
             response.status_code,
-            expected_status_codes
+            codes.created
         )
 
     @unittest.skip('')
