@@ -1,3 +1,29 @@
+DROP FUNCTION IF EXISTS get_character_dices(VARCHAR);
+CREATE FUNCTION get_character_dices(user_email VARCHAR(254))
+RETURNS TABLE (
+    id INTEGER,
+    dice_1 SMALLINT,
+    dice_2 SMALLINT,
+    dice_3 SMALLINT
+) AS $$
+DECLARE
+    character_rolls RECORD;
+BEGIN
+    IF EXISTS (SELECT * FROM characters WHERE "user" = user_email LIMIT 1) THEN RETURN; END IF;
+    IF (SELECT count(*) FROM rolls WHERE rolls."user" = user_email LIMIT 5) != 5 THEN
+        INSERT INTO rolls (dice_1, dice_2, dice_3, "user") VALUES
+            (floor(random() * 6) + 1, floor(random() * 6) + 1, floor(random() * 6) + 1, user_email),
+            (floor(random() * 6) + 1, floor(random() * 6) + 1, floor(random() * 6) + 1, user_email),
+            (floor(random() * 6) + 1, floor(random() * 6) + 1, floor(random() * 6) + 1, user_email),
+            (floor(random() * 6) + 1, floor(random() * 6) + 1, floor(random() * 6) + 1, user_email),
+            (floor(random() * 6) + 1, floor(random() * 6) + 1, floor(random() * 6) + 1, user_email);
+    END IF;
+    RETURN QUERY SELECT rolls.id, rolls.dice_1, rolls.dice_2, rolls.dice_3
+        FROM rolls WHERE rolls."user" = user_email
+        LIMIT 5;
+END;
+$$ LANGUAGE 'plpgsql';
+
 DROP FUNCTION IF EXISTS create_character(character varying,character varying, integer, integer, integer, integer, character varying);
 CREATE FUNCTION create_character(
     name VARCHAR(20), 
@@ -230,7 +256,7 @@ RETURNS TABLE (
 )AS $$ 
     (
         SELECT items.id, items.name, items.description, items.attack,
-        items.defence, items.wisdom, items.hit_points, items.category
+            items.defence, items.wisdom, items.hit_points, items.category
         FROM characters JOIN character_items
         ON characters.id = character_items."character"
         JOIN items
@@ -336,29 +362,3 @@ RETURNS TABLE (
         WHERE characters."user" = user_email
         AND gates.hidden = false;
 $$ LANGUAGE 'sql';
-
-DROP FUNCTION IF EXISTS get_character_dices(VARCHAR);
-CREATE FUNCTION get_character_dices(user_email VARCHAR(254)) 
-RETURNS TABLE (
-    id INTEGER,
-    dice_1 SMALLINT,
-    dice_2 SMALLINT, 
-    dice_3 SMALLINT
-) AS $$
-DECLARE
-    character_rolls RECORD;
-BEGIN
-    IF EXISTS (SELECT * FROM characters WHERE "user" = user_email LIMIT 1) THEN RETURN; END IF;
-    IF (SELECT count(*) FROM rolls WHERE rolls."user" = user_email LIMIT 5) != 5 THEN
-        INSERT INTO rolls (dice_1, dice_2, dice_3, "user") VALUES 
-            (floor(random() * 6) + 1, floor(random() * 6) + 1, floor(random() * 6) + 1, user_email),
-            (floor(random() * 6) + 1, floor(random() * 6) + 1, floor(random() * 6) + 1, user_email),
-            (floor(random() * 6) + 1, floor(random() * 6) + 1, floor(random() * 6) + 1, user_email),
-            (floor(random() * 6) + 1, floor(random() * 6) + 1, floor(random() * 6) + 1, user_email),
-            (floor(random() * 6) + 1, floor(random() * 6) + 1, floor(random() * 6) + 1, user_email);
-    END IF;
-    RETURN QUERY SELECT rolls.id, rolls.dice_1, rolls.dice_2, rolls.dice_3
-        FROM rolls WHERE rolls."user" = user_email
-        LIMIT 5;
-END;
-$$ LANGUAGE 'plpgsql';

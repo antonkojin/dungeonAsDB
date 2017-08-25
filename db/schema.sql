@@ -57,7 +57,7 @@ CREATE TABLE characters (
 	equipped_attack_item INTEGER REFERENCES items(id),
 	"user" VARCHAR(254) REFERENCES users(email) NOT NULL UNIQUE,
 --	attack = (strength + dexterity) / 2 + bonus
---	defence = (constitution + dextrity) / 2 + bonus
+--	defence = (constitution + dexterity) / 2 + bonus
 --	wisdom = intellect + bonus
 --	hit_points = constitution + bonus
 	room_attack_bonus SMALLINT DEFAULT 0,
