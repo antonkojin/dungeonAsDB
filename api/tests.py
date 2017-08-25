@@ -14,7 +14,7 @@ from os.path import dirname, realpath
 init_db_script = 'heroku run db/heroku_init_db.py db/schema.sql db/data.sql db/functions.sql' if heroku else dirname(
         realpath(__file__)) + '/../db/docker_init_db.sh schema.sql functions.sql data.sql'
 clean_db_script = 'heroku run db/heroku_init_db.py db/schema.sql db/data.sql' if heroku else dirname(
-        realpath(__file__)) + '/../db/docker_init_db.sh schema.sql data.sql'
+        realpath(__file__)) + '/../db/docker_init_db.sh schema.sql functions.sql data.sql'
 
 
 def url(path):
