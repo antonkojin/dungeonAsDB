@@ -1,4 +1,4 @@
-DROP FUNCTION IF EXISTS create_character(character varying,character varying,smallint,smallint,smallint,smallint,character varying);
+DROP FUNCTION IF EXISTS create_character(character varying,character varying, integer, integer, integer, integer, character varying);
 CREATE FUNCTION create_character(
     name VARCHAR(20), 
     description VARCHAR,
@@ -25,21 +25,25 @@ CREATE FUNCTION create_character(
                 SELECT dice_1 + dice_2 + dice_3
                 FROM rolls
                 WHERE id = strength_roll
+                AND "user" = email
             ), 
             (
                 SELECT dice_1 + dice_2 + dice_3
                 FROM rolls
                 WHERE id = intellect_roll
+                AND "user" = email
             ), 
             (
                 SELECT dice_1 + dice_2 + dice_3
                 FROM rolls
                 WHERE id = dexterity_roll
+                AND "user" = email
             ), 
             (
                 SELECT dice_1 + dice_2 + dice_3
                 FROM rolls
                 WHERE id = constitution_roll
+                AND "user" = email
             ), 
             (
                 SELECT value FROM defaults WHERE key = 'initial_defence_item'
@@ -49,6 +53,7 @@ CREATE FUNCTION create_character(
             ),
             email
         );
+        DELETE FROM rolls WHERE "user" = email;
 $$ LANGUAGE 'sql';
 
 DROP FUNCTION IF EXISTS create_room(INTEGER);
@@ -311,19 +316,20 @@ RETURNS TABLE (
     dice_2 SMALLINT, 
     dice_3 SMALLINT
 ) AS $$
+DECLARE
+    character_rolls RECORD;
 BEGIN
-    PERFORM rolls.id, rolls.dice_1, rolls.dice_2, rolls.dice_3
-    FROM rolls WHERE rolls."user" = user_email;
-    IF NOT FOUND THEN
-        INSERT INTO rolls (dice_1, dice_2, dice_3, "user")
-        VALUES 
-        (floor(random() * 6) + 1, floor(random() * 6) + 1, floor(random() * 6) + 1, user_email),
-        (floor(random() * 6) + 1, floor(random() * 6) + 1, floor(random() * 6) + 1, user_email),
-        (floor(random() * 6) + 1, floor(random() * 6) + 1, floor(random() * 6) + 1, user_email),
-        (floor(random() * 6) + 1, floor(random() * 6) + 1, floor(random() * 6) + 1, user_email),
-        (floor(random() * 6) + 1, floor(random() * 6) + 1, floor(random() * 6) + 1, user_email);
+    IF EXISTS (SELECT * FROM characters WHERE "user" = user_email LIMIT 1) THEN RETURN; END IF;
+    IF (SELECT count(*) FROM rolls WHERE rolls."user" = user_email LIMIT 5) != 5 THEN
+        INSERT INTO rolls (dice_1, dice_2, dice_3, "user") VALUES 
+            (floor(random() * 6) + 1, floor(random() * 6) + 1, floor(random() * 6) + 1, user_email),
+            (floor(random() * 6) + 1, floor(random() * 6) + 1, floor(random() * 6) + 1, user_email),
+            (floor(random() * 6) + 1, floor(random() * 6) + 1, floor(random() * 6) + 1, user_email),
+            (floor(random() * 6) + 1, floor(random() * 6) + 1, floor(random() * 6) + 1, user_email),
+            (floor(random() * 6) + 1, floor(random() * 6) + 1, floor(random() * 6) + 1, user_email);
     END IF;
     RETURN QUERY SELECT rolls.id, rolls.dice_1, rolls.dice_2, rolls.dice_3
-    FROM rolls WHERE rolls."user" = user_email;
+        FROM rolls WHERE rolls."user" = user_email
+        LIMIT 5;
 END;
 $$ LANGUAGE 'plpgsql';

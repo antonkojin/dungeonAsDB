@@ -86,9 +86,7 @@ class TestDungeonAsDB(unittest.TestCase):
 
     def test_create_character(self):
         self.test_signup()
-        response = requests.get(url('dices'), auth=auth)
-        self.assertEqual(response.status_code, codes.ok)
-        rolls = response.json()
+        rolls = requests.get(url('dices'), auth=auth).json()
         self.assertEqual(len(rolls), 5)
         for roll in rolls:
             self.assertTrue(roll['dice_1'] >= 1 and roll['dice_1'] <= 6)
@@ -108,41 +106,71 @@ class TestDungeonAsDB(unittest.TestCase):
             codes.created
         )
 
-    def test_cant_create_another_character(self):
-        self.test_create_character()
+    def test_cant_roll_twice_character_dices(self):
+        self.test_signup()
+        rolls_response = requests.get(url('dices'), auth=auth)
+        self.assertEqual(
+            rolls_response.status_code,
+            codes.ok
+        )
+        rolls = rolls_response.json()
+        another_rolls_response = requests.get(url('dices'), auth=auth)
+        self.assertEqual(
+            another_rolls_response.status_code,
+            codes.ok
+        )
+        self.assertEqual(rolls, another_rolls_response.json())
         data = {
             'name': 'test_character_name',
-            'description': 'test_character_not_very_long_description',
-            'strength': 18,
-            'intellect': 18,
-            'dexterity': 18,
-            'constitution': 18
+            'description': 'test character not very long description',
+            'strength': rolls[0]['id'],
+            'intellect': rolls[1]['id'],
+            'dexterity': rolls[2]['id'],
+            'constitution': rolls[3]['id']
         }
-        another_data = {
-            'name': 'test_character_name2',
-            'description': 'test_character_not_very_long_description2',
-            'strength': 12,
-            'intellect': 9,
-            'dexterity': 8,
-            'constitution': 10
-        }
-        requests.post(url('character'), auth=auth, data=data)
-        response = requests.post(
-            url('character'), auth=auth, data=another_data)
+        response = requests.post(url('character'), auth=auth, data=data)
         self.assertEqual(
             response.status_code,
-            codes.conflict
+            codes.created
+        )
+        self.assertEqual(
+            requests.get(url('dices'), auth=auth).status_code,
+            codes.not_found
+        )
+
+    def test_cant_create_another_character(self):
+        self.test_signup()
+        rolls = requests.get(url('dices'), auth=auth).json()
+        data = {
+            'name': 'test_character_name',
+            'description': 'test character not very long description',
+            'strength': rolls[0]['id'],
+            'intellect': rolls[1]['id'],
+            'dexterity': rolls[2]['id'],
+            'constitution': rolls[3]['id']
+        }
+        self.assertEqual(
+            requests.post(url('character'), auth=auth, data=data).status_code,
+            codes.created
+        )
+        self.assertIn(
+            requests.post(url('character'), auth=auth, data=data).status_code,
+            [
+                codes.conflict,
+                codes.bad_request
+            ]
         )
 
     def test_cant_create_wrong_character(self):
         self.test_signup()
+        rolls = requests.get(url('dices'), auth=auth).json()
         data = {
             'name': 'test_character_name',
             'description': 'test_character_not_very_long_description',
-            'strength': 20,
-            'intellect': 3,
-            'dexterity': 19,
-            'constitution': 2
+            'strength': 1,
+            'intellect': 4,
+            'dexterity': 11,
+            'constitution': 27
         }
         response = requests.post(url('character'), auth=auth, data=data)
         self.assertEqual(
@@ -150,6 +178,7 @@ class TestDungeonAsDB(unittest.TestCase):
             codes.bad_request
         )
 
+    @unittest.skip('')
     def test_start_dungeon(self):
         self.test_create_character()
         expected_status_codes = [codes.created, codes.conflict]
@@ -159,6 +188,7 @@ class TestDungeonAsDB(unittest.TestCase):
             expected_status_codes
         )
 
+    @unittest.skip('')
     def test_dungeon_status(self):
         self.test_start_dungeon()
         response = requests.get(url('dungeon'), auth=auth)

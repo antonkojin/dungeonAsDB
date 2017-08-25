@@ -89,6 +89,7 @@ def get_dices_for_character_creation():
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(query_get_dices, values)
             dices = cursor.fetchall()
+    if len(dices) != 5: return ('', 404)
     return (jsonify(dices), 200)
 
 
@@ -122,6 +123,8 @@ def create_character():
                     return ('', 400)
                 elif e.pgcode == db.errorcodes.UNIQUE_VIOLATION:
                     return ('', 409)
+                elif e.pgcode == db.errorcodes.NOT_NULL_VIOLATION:
+                    return ('', 400)
                 else:
                     raise e
     return ('', 201)
