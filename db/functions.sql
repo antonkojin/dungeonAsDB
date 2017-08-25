@@ -180,16 +180,40 @@ CREATE FUNCTION get_character(user_email VARCHAR(254))
 RETURNS TABLE(
     name VARCHAR,
     description VARCHAR,
-    defence_item INTEGER,
-    attack_item INTEGER
+    strength SMALLINT,
+    intellect SMALLINT,
+    dexterity SMALLINT,
+    constitution SMALLINT,
+    room_attack_bonus SMALLINT,
+    room_defence_bonus SMALLINT,
+    room_wisdom_bonus SMALLINT,
+    room_hit_points_bonus SMALLINT,
+    attack SMALLINT,
+    defence SMALLINT,
+    wisdom SMALLINT,
+    hit_points SMALLINT,
+    equipped_defence_item INTEGER,
+    equipped_attack_item INTEGER
 )AS $$ 
     SELECT (
-        characters.name, 
-        characters.description, 
-        equipped_defence_item, 
-        equipped_attack_item
+        C.name, 
+        C.description, 
+        C.strength,
+        C.intellect,
+        C.dexterity,
+        C.constitution,
+        C.room_attack_bonus,
+        C.room_defence_bonus,
+        C.room_wisdom_bonus,
+        C.room_hit_points_bonus,
+        ((C.strength + C.dexterity) / 2 + C.room_attack_bonus)::SMALLINT,
+        ((C.constitution + C.dexterity) / 2 + C.room_defence_bonus)::SMALLINT,
+        (C.intellect + C.room_wisdom_bonus)::SMALLINT,
+        (C.constitution + C.room_hit_points_bonus)::SMALLINT,
+        C.equipped_defence_item, 
+        C.equipped_attack_item
     )
-    FROM characters WHERE characters."user" = user_email;
+    FROM characters AS C WHERE C."user" = user_email;
 $$ LANGUAGE 'sql';
 
 DROP FUNCTION IF EXISTS get_character_items(VARCHAR);
@@ -246,9 +270,14 @@ RETURNS TABLE (
     id INTEGER,
     name VARCHAR,
     description VARCHAR,
+    attack SMALLINT,
+    defence SMALLINT,
+    wisdom SMALLINT,
+    hit_points SMALLINT,
     category ITEM_CATEGORY
 )AS $$ 
-        SELECT items.id, items.name, items.description, items.category
+        SELECT items.id, items.name, items.description, items.attack,
+            items.defence, items.wisdom, items.hit_points, items.category
         FROM characters JOIN dungeons
         ON characters.id = dungeons."character"
         JOIN room_items

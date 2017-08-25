@@ -186,7 +186,6 @@ class TestDungeonAsDB(unittest.TestCase):
             codes.created
         )
 
-    @unittest.skip('')
     def test_dungeon_status(self):
         self.test_start_dungeon()
         response = requests.get(url('dungeon'), auth=auth)
@@ -196,29 +195,70 @@ class TestDungeonAsDB(unittest.TestCase):
         )
         response_json = response.json()
         self.assertIn('character', response_json)
+        self.assertIn('room', response_json)
+
         character = response_json['character']
         self.assertIn('name', character)
         self.assertIn('description', character)
-        self.assertIn('attack_item', character)
-        self.assertIn('defence_item', character)
+        self.assertIn('strength', character)
+        self.assertIn('intellect', character)
+        self.assertIn('dexterity', character)
+        self.assertIn('constitution', character)
+        self.assertIn('room_attack_bonus', character)
+        self.assertIn('room_defence_bonus', character)
+        self.assertIn('room_wisdom_bonus', character)
+        self.assertIn('room_hit_points_bonus', character)
+        self.assertIn('attack', character)
+        self.assertIn('defence', character)
+        self.assertIn('wisdom', character)
+        self.assertIn('hit_points', character)
+        self.assertIn('equipped_defence_item', character)
+        self.assertIn('equipped_attack_item', character)
         self.assertIn('bag', character)
+
         bag = character['bag']
         self.assertTrue(len(bag) >= 2)
-        item = bag[0]
-        self.assertIn('id', item)
-        self.assertIn('name', item)
-        self.assertIn('description', item)
-        self.assertIn('attack', item)
-        self.assertIn('defence', item)
-        self.assertIn('wisdom', item)
-        self.assertIn('hit_points', item)
-        self.assertIn('category', item)
-        self.assertIn('room', response_json)
+        for item in bag:
+            self.assertIn('id', item)
+            self.assertIn('name', item)
+            self.assertIn('description', item)
+            self.assertIn('attack', item)
+            self.assertIn('defence', item)
+            self.assertIn('wisdom', item)
+            self.assertIn('hit_points', item)
+            self.assertIn('category', item)
+
         room = response_json['room']
         self.assertIn('description', room)
         self.assertIn('items', room)
         self.assertIn('enemies', room)
         self.assertIn('gates', room)
+
+        room_items = room['items']
+        for item in room_items:
+            self.assertIn('id', item)
+            self.assertIn('name', item)
+            self.assertIn('description', item)
+            self.assertIn('attack', item)
+            self.assertIn('defence', item)
+            self.assertIn('wisdom', item)
+            self.assertIn('hit_points', item)
+            self.assertIn('category', item)
+
+        room_enemies = room['enemies']
+        for enemy in room_enemies:
+            self.assertIn('id', enemy)
+            self.assertIn('name', enemy)
+            self.assertIn('description', enemy)
+            self.assertIn('attack', enemy)
+            self.assertIn('defence', enemy)
+            self.assertIn('hit_points', enemy)
+            self.assertIn('damage', enemy)
+
+        room_gates = room['gates']
+        for gate in room_gates:
+            self.assertIn('id', gate)
+            self.assertIn('room', gate)
 
     @unittest.skip('')
     def test_cant_start_another_dungeon(self):
