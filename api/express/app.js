@@ -16,16 +16,15 @@ app.listen(3000, function () {
   console.log('Example app listening on port 3000!')
 })
 
-/*
 // database connection example
-var pgp = require('pg-promise')
+var pgp = require('pg-promise')(/* init options */)
 var db = pgp('postgres://username:password@host:port/database')
 
-db.one('SELECT $1 AS value', 123)
+db.one('SELECT $1 AS value', 123) // returns one row (.many() returns many rows and .any() gives no fucks)
   .then(function (data) {
     console.log('DATA:', data.value)
   })
   .catch(function (error) {
     console.log('ERROR:', error)
   })
-*/
+
