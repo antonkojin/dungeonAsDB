@@ -1,4 +1,6 @@
 const express = require('express')
+const auth = require('basic-auth')
+
 const app = express()
 
 // CORS support
@@ -7,6 +9,16 @@ app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   next();
 });
+
+app.use(function(req, res, next) {
+    var user = auth(req)
+    if (!user) {
+        res.status(401);
+        res.set('WWW-Authenticate', 'Basic realm="simple"')
+    }
+    next();
+});
+
 
 app.get('/', function (req, res) {
   res.send('Hello World!')
