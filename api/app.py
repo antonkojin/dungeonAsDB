@@ -119,14 +119,14 @@ def create_character():
                 cursor.execute(query, values)
             except db.IntegrityError as e:
                 app.logger.warning(e)
-                if e.pgcode == db.errorcodes.CHECK_VIOLATION:
-                    return ('', 400)
-                elif e.pgcode == db.errorcodes.UNIQUE_VIOLATION:
+                if e.pgcode == db.errorcodes.UNIQUE_VIOLATION:
                     return ('', 409)
                 elif e.pgcode == db.errorcodes.NOT_NULL_VIOLATION:
                     return ('', 400)
                 else:
                     raise e
+            except db.InternalError as e:
+                return ('', 400)
     return ('', 201)
 
 

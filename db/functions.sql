@@ -34,53 +34,64 @@ CREATE FUNCTION create_character(
     constitution_roll INTEGER,
     email VARCHAR(254)
 ) RETURNS VOID AS $$
-        INSERT INTO characters (
-            name, 
-            description, 
-            strength, 
-            intellect, 
-            dexterity, 
-            constitution,
-            equipped_defence_item,
-            equipped_attack_item,
-            "user"
-        ) VALUES (
-            name, 
-            description, 
-            (
-                SELECT dice_1 + dice_2 + dice_3
-                FROM rolls
-                WHERE id = strength_roll
-                AND "user" = email
-            ), 
-            (
-                SELECT dice_1 + dice_2 + dice_3
-                FROM rolls
-                WHERE id = intellect_roll
-                AND "user" = email
-            ), 
-            (
-                SELECT dice_1 + dice_2 + dice_3
-                FROM rolls
-                WHERE id = dexterity_roll
-                AND "user" = email
-            ), 
-            (
-                SELECT dice_1 + dice_2 + dice_3
-                FROM rolls
-                WHERE id = constitution_roll
-                AND "user" = email
-            ), 
-            (
-                SELECT value FROM defaults WHERE key = 'initial_defence_item'
-            ),
-            (
-                SELECT value FROM defaults WHERE key = 'initial_attack_item'   
-            ),
-            email
-        );
-        DELETE FROM rolls WHERE "user" = email;
-$$ LANGUAGE 'sql';
+BEGIN
+    if (
+        strength_roll = intellect_roll
+        OR strength_roll = dexterity_roll
+        OR strength_roll = constitution_roll
+        OR intellect_roll = dexterity_roll
+        OR intellect_roll = constitution_roll
+        OR dexterity_roll = constitution_roll
+        ) THEN RAISE 'WRONG CHARACTER ROLLS';
+    END IF;
+    INSERT INTO characters (
+        name, 
+        description, 
+        strength, 
+        intellect, 
+        dexterity, 
+        constitution,
+        equipped_defence_item,
+        equipped_attack_item,
+        "user"
+    ) VALUES (
+        name, 
+        description, 
+        (
+            SELECT dice_1 + dice_2 + dice_3
+            FROM rolls
+            WHERE id = strength_roll
+            AND "user" = email
+        ), 
+        (
+            SELECT dice_1 + dice_2 + dice_3
+            FROM rolls
+            WHERE id = intellect_roll
+            AND "user" = email
+        ), 
+        (
+            SELECT dice_1 + dice_2 + dice_3
+            FROM rolls
+            WHERE id = dexterity_roll
+            AND "user" = email
+        ), 
+        (
+            SELECT dice_1 + dice_2 + dice_3
+            FROM rolls
+            WHERE id = constitution_roll
+            AND "user" = email
+        ), 
+        (
+            SELECT value FROM defaults WHERE key = 'initial_defence_item'
+        ),
+        (
+            SELECT value FROM defaults WHERE key = 'initial_attack_item'   
+        ),
+        email
+    );
+    DELETE FROM rolls WHERE "user" = email;
+END;
+$$ LANGUAGE 'plpgsql';
 
 DROP FUNCTION IF EXISTS create_room(INTEGER);
 CREATE FUNCTION create_room(

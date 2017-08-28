@@ -167,10 +167,10 @@ class TestDungeonAsDB(unittest.TestCase):
         data = {
             'name': 'test_character_name',
             'description': 'test_character_not_very_long_description',
-            'strength': 1,
-            'intellect': 4,
-            'dexterity': 11,
-            'constitution': 27
+            'strength': rolls[0]['id'],
+            'intellect': rolls[1]['id'],
+            'dexterity': rolls[0]['id'],
+            'constitution': rolls[2]['id']
         }
         response = requests.post(url('character'), auth=auth, data=data)
         self.assertEqual(
