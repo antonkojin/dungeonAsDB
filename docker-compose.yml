@@ -7,7 +7,7 @@ services:
     ports:
       - 8000:5000
     volumes:
-      - ./api:/code
+      - ./api:/usr/src/app
     environment:
       - DATABASE_URL=postgres://dungeon_as_db_superuser@db:5432/dungeon_as_db
   db:
