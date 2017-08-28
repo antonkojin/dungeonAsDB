@@ -9,10 +9,17 @@ import sys
 heroku = len(args) >= 2 and args[1] == 'heroku'
 if heroku:
     sys.argv = args[:1] + args[2:]
-host = 'https://progetto-db.herokuapp.com/' if heroku else 'http://localhost:8000/'
+
+if heroku:
+    host = 'https://progetto-db.herokuapp.com/'
+else:
+    host = 'http://localhost:8000/'
+
 from os.path import dirname, realpath
-init_db_script = 'heroku run db/heroku_init_db.py db/schema.sql db/data.sql db/functions.sql' if heroku else dirname(
-        realpath(__file__)) + '/../db/docker_init_db.sh schema.sql functions.sql data.sql'
+if heroku:
+    init_db_script = 'heroku run db/heroku_init_db.py db/schema.sql db/data.sql db/functions.sql'
+else:
+    init_db_script = dirname(realpath(__file__)) + '/../db/docker_init_db.sh schema.sql functions.sql data.sql'
 clean_db_script = 'heroku run db/heroku_init_db.py db/schema.sql db/data.sql' if heroku else dirname(
         realpath(__file__)) + '/../db/docker_init_db.sh schema.sql functions.sql data.sql'
 
@@ -44,11 +51,7 @@ class TestDungeonAsDB(unittest.TestCase):
                             stdout=DEVNULL, stderr=subprocess.STDOUT)
 
     def tearDown(self):
-        from os import devnull
-        import subprocess
-        with open(devnull, 'w') as DEVNULL:
-            subprocess.call(clean_db_script, shell=True,
-                            stdout=DEVNULL, stderr=subprocess.STDOUT)
+        self.setUpClass()
 
     def test_signup(self):
         request_data = {
