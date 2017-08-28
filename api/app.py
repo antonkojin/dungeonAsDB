@@ -235,6 +235,17 @@ def end_dungeon():
     return ('', 200)
 
 
+@app.route('/dungeon/gate/<gate_id>', methods=['GET'])
+@auth.login_required
+def follow_gate(gate_id):
+    email = auth.username()
+    query_follow_gate = 'SELECT follow_gate(%s::VARCHAR, %s::INTEGER)'
+    with db.connect(db_url) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(query_follow_gate, (email, gate_id))
+    return ('', 200)
+
+
 if __name__ == '__main__':
     from os import getenv
     app.run(

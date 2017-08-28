@@ -238,6 +238,7 @@ class TestDungeonAsDB(unittest.TestCase):
             self.assertIn('category', item)
 
         room = response_json['room']
+        self.assertIn('id', room)
         self.assertIn('description', room)
         self.assertIn('items', room)
         self.assertIn('enemies', room)
@@ -284,8 +285,31 @@ class TestDungeonAsDB(unittest.TestCase):
             codes.created
         )
 
+    def test_follow_gate_to_other_room(self):
+        self.test_start_dungeon()
+        old_room = requests.get(url('dungeon'), auth=auth).json()['room']
+        gate_id = old_room['gates'][0]['id']
+        response = requests.get(
+            url('dungeon/gate/{gate_id}'.format(gate_id=gate_id)),
+            auth=auth
+        )
+        self.assertEqual(
+            response.status_code,
+            codes.ok
+        )
+        new_room = requests.get(url('dungeon'), auth=auth).json()['room']
+        self.assertNotEqual(
+            old_room['id'],
+            new_room['id']
+        )
+        self.assertEqual(
+            old_room['gates'][0]['room'],
+            new_room['id']
+        )
+
     @unittest.skip('')
     def test_take_item_from_room(self):
+        self.test_start_dungeon()
         response = requests.get(url('dungeon'), auth=auth)
         items = response.json()['room']['items']
         if len(items) == 0:
@@ -297,24 +321,6 @@ class TestDungeonAsDB(unittest.TestCase):
         self.assertEqual(
             response.status_code,
             codes.no_content
-        )
-
-    @unittest.skip('')
-    def test_follow_gate_to_other_room(self):
-        response = requests.get(url('dungeon'), auth=auth)
-        previous_room = response.json()['room']
-        gate = previous_room['gates'][0]['id']
-        response = requests.get(
-            url('dungeon/gate/{gate}'.format(gate=gate)),
-            auth=auth
-        )
-        self.assertEqual(
-            response.status_code,
-            codes.ok
-        )
-        self.assertNotEqual(
-            response.json()['room'],
-            previous_room
         )
 
     @unittest.skip('')

@@ -369,3 +369,36 @@ CREATE FUNCTION end_dungeon(user_email VARCHAR(254)) RETURNS VOID AS $$
         SELECT id FROM characters WHERE "user" = user_email LIMIT 1
     );
 $$ LANGUAGE 'sql';
+
+DROP FUNCTION IF EXISTS follow_gate(VARCHAR, INTEGER);
+CREATE FUNCTION follow_gate(user_email VARCHAR(254), gate_id INTEGER) RETURNS VOID AS $$
+DECLARE
+    room_over_gate INTEGER;
+    user_character INTEGER;
+    user_dungeon INTEGER;
+    user_current_room INTEGER;
+BEGIN
+    SELECT characters.id
+        FROM characters
+        WHERE characters."user" = user_email
+        LIMIT 1
+        INTO user_character;
+    SELECT dungeons.id, dungeons.current_room
+        FROM dungeons
+        WHERE dungeons."character" = user_character
+        LIMIT 1
+        INTO user_dungeon, user_current_room;
+    SELECT
+        CASE WHEN user_current_room = gates.room_from
+            THEN gates.room_to
+            ELSE gates.room_from
+        END
+        FROM gates
+        WHERE gates.id = gate_id
+        INTO room_over_gate;
+    UPDATE dungeons SET
+        current_room = room_over_gate
+        WHERE dungeons."character" = user_character;
+END;
+$$ LANGUAGE 'plpgsql';
+
