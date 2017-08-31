@@ -51,7 +51,7 @@ class TestDungeonAsDB(unittest.TestCase):
                             stdout=DEVNULL, stderr=subprocess.STDOUT)
 
     def tearDown(self):
-        self.setUpClass()
+        requests.delete(url('user'), auth=auth)
 
     def test_signup(self):
         request_data = {
