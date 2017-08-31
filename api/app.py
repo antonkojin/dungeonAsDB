@@ -86,11 +86,7 @@ def delete_user():
     values = (auth.username(), )
     with db.connect(db_url) as connection:
         with connection.cursor() as cursor:
-            try:
-                cursor.execute(query, values)
-            except db.Error as e:
-                app.logger.warning(e)
-                return ('DB ERROR!!!', 999)
+            cursor.execute(query, values)
     return ('', 200)
 
 @app.route('/dices', methods=['GET'])
