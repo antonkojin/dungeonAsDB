@@ -24,6 +24,13 @@ BEGIN
 END;
 $$ LANGUAGE 'plpgsql';
 
+
+DROP FUNCTION IF EXISTS delete_user(character varying);
+CREATE FUNCTION delete_user( user_email VARCHAR(254)) RETURNS VOID AS
+$$
+    DELETE FROM users WHERE email = user_email;
+$$ LANGUAGE 'sql';
+
 DROP FUNCTION IF EXISTS create_character(character varying,character varying, integer, integer, integer, integer, character varying);
 CREATE FUNCTION create_character(
     name VARCHAR(20), 

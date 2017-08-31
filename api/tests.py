@@ -288,6 +288,14 @@ class TestDungeonAsDB(unittest.TestCase):
             codes.created
         )
 
+    def test_delete_user(self):
+        self.test_signup()
+        response = requests.delete(url('user'), auth=auth)
+        self.assertEqual(
+            response.status_code,
+            codes.ok
+        )
+
     def test_follow_gate_to_other_room(self):
         self.test_start_dungeon()
         old_room = requests.get(url('dungeon'), auth=auth).json()['room']

@@ -79,6 +79,19 @@ def user():
         200
     )
 
+@app.route('/user', methods=['DELETE'])
+@auth.login_required
+def delete_user():
+    query = 'SELECT delete_user(%s::VARCHAR)'
+    values = (auth.username(), )
+    with db.connect(db_url) as connection:
+        with connection.cursor() as cursor:
+            try:
+                cursor.execute(query, values)
+            except db.Error as e:
+                app.logger.warning(e)
+                return ('DB ERROR!!!', 999)
+    return ('', 200)
 
 @app.route('/dices', methods=['GET'])
 @auth.login_required

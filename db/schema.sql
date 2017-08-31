@@ -27,7 +27,7 @@ CREATE TABLE users (
 
 CREATE TABLE rolls (
     id SERIAL PRIMARY KEY,
-    "user" varchar(254) REFERENCES users(email) NOT NULL,
+    "user" varchar(254) NOT NULL REFERENCES users(email) ON DELETE CASCADE,
     dice_1 SMALLINT NOT NULL,
     dice_2 SMALLINT NOT NULL,
     dice_3 SMALLINT NOT NULL
@@ -55,7 +55,7 @@ CREATE TABLE characters (
 	constitution SMALLINT NOT NULL CHECK (strength >= 3 AND strength <= 18),
 	equipped_defence_item INTEGER REFERENCES items(id),
 	equipped_attack_item INTEGER REFERENCES items(id),
-	"user" VARCHAR(254) REFERENCES users(email) NOT NULL UNIQUE,
+	"user" VARCHAR(254) NOT NULL UNIQUE REFERENCES users(email) ON DELETE CASCADE,
 --	attack = (strength + dexterity) / 2 + bonus
 --	defence = (constitution + dexterity) / 2 + bonus
 --	wisdom = intellect + bonus
@@ -82,7 +82,7 @@ CREATE TABLE rooms (
 
 CREATE TABLE dungeons (
 	id SERIAL PRIMARY KEY,
-	character INTEGER REFERENCES characters(id) NOT NULL UNIQUE,
+	character INTEGER NOT NULL UNIQUE REFERENCES characters(id) ON DELETE CASCADE,
 	current_room INTEGER REFERENCES rooms(id),
 	final_room INTEGER REFERENCES rooms(id)
 );
@@ -91,7 +91,7 @@ ALTER TABLE rooms ADD CONSTRAINT rooms_dungeon_fkey FOREIGN KEY (dungeon) REFERE
 
 CREATE TABLE character_items (
 	id SERIAL PRIMARY KEY,
-	character INTEGER REFERENCES characters(id) NOT NULL,
+	character INTEGER NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
 	item INTEGER REFERENCES items(id) NOT NULL
 );
 
