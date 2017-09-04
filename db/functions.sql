@@ -273,7 +273,7 @@ RETURNS TABLE (
     category ITEM_CATEGORY
 )AS $$ 
     (
-        SELECT items.id, items.name, items.description, items.attack,
+        SELECT character_items.id, items.name, items.description, items.attack,
             items.defence, items.wisdom, items.hit_points, items.category
         FROM characters JOIN character_items
         ON characters.id = character_items."character"
@@ -320,7 +320,7 @@ RETURNS TABLE (
     hit_points SMALLINT,
     category ITEM_CATEGORY
 )AS $$ 
-        SELECT items.id, items.name, items.description, items.attack,
+        SELECT room_items.id, items.name, items.description, items.attack,
             items.defence, items.wisdom, items.hit_points, items.category
         FROM characters JOIN dungeons
         ON characters.id = dungeons."character"
@@ -344,7 +344,7 @@ RETURNS TABLE (
     hit_points SMALLINT
 )AS $$ 
         SELECT 
-            enemies.id, 
+            room_enemies.id, 
             enemies.name, 
             enemies.description, 
             enemies.attack, 
