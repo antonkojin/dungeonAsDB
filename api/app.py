@@ -98,6 +98,7 @@ def get_dices_for_character_creation():
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(query_get_dices, values)
             dices = cursor.fetchall()
+            app.logger.info('dices:\n{}'.format(dices))
     if len(dices) != 5: return ('', 404)
     return (jsonify(dices), 200)
 
