@@ -318,6 +318,58 @@ class TestDungeonAsDB(unittest.TestCase):
             new_room['id']
         )
 
+    def test_fight(self):
+        # A vs B
+        # X = A.att - B.dif
+        # if X + 1d20 > 12 then
+        #   B.pf = B.pf - (A.arma.pf || A.danno)
+        self.test_start_dungeon()
+        response = requests.get(url('dungeon'), auth=auth)
+        character = response.json()['character']
+
+        enemies = response.json()['room']['enemies']
+        if len(enemies) < 1:
+            self.skipTest('no enemies to fight')
+        enemy = enemies[0]
+        response = requests.post(
+            url('dungeon/enemy/{enemy_id}'.format(enemy_id=enemy['id'])),
+            auth=auth
+        )
+        self.assertEqual(response.status_code, codes.ok)
+        after_attack_status = requests.get(url('dungeon'), auth=auth).json()
+        fights = response.json()
+        self.assertEqual(len(fights), len(enemies) + 1)
+        for fight in fights:
+            if fight['type'] == 'attacking':
+                self.assertEqual(fight['id'], enemy['id'])
+                value = character['attack'] - enemy['defence']
+                if fight['hit']:
+                    self.assertEqual(
+                        [
+                            enemy['hit_points']
+                            for enemy in after_attack_status['room']['enemies']
+                            if enemy['id'] == enemy['id']
+                        ][0],
+                        max(enemy['hit_points'] - fight['damage'], 0)
+                    )
+            elif fight['type'] == 'defending':
+                self.assertIn(fight['id'], map(lambda enemy: enemy['id'], enemies))
+                value = [
+                    enemy['attack'] - character['defence']
+                    for enemy in enemies if enemy['id'] == fight['id']
+                ][0]
+                if fight['hit']:
+                    self.assertEqual(
+                        after_attack_status['character']['hit_points'],
+                        max(character['hit_points'] - fight['damage'], 0)
+                    )
+            self.assertEqual(fight['value'], value)
+            self.assertIn(fight['dice'], range(1, 21))
+            self.assertEqual(
+                    value + fight['dice'] > 12,
+                    fight['hit']
+            )
+
     @unittest.skip('')
     def test_take_item_from_room(self):
         self.test_start_dungeon()

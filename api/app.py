@@ -255,6 +255,23 @@ def follow_gate(gate_id):
     return ('', 200)
 
 
+@app.route('/dungeon/enemy/<enemy_id>', methods=['POST'])
+@auth.login_required
+def fight_enemy(enemy_id):
+    email = auth.username()
+    query_fight_enemy = 'SELECT * FROM fight_enemy(%s::VARCHAR, %s::INTEGER)'
+    with db.connect(db_url) as connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            try:
+                cursor.execute(query_fight_enemy, (email, enemy_id))
+                fight = cursor.fetchall()
+                app.logger.info('fight:`\n{}'.format(fight))
+            except db.Error as e:
+                app.logger.warning(e)
+                return('DB ERROR NOT CATCHED', 999)
+    return (jsonify(fight), 200)
+
+
 if __name__ == '__main__':
     from os import getenv
     app.run(

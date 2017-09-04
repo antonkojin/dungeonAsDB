@@ -11,7 +11,7 @@ INSERT INTO defaults (key, value) VALUES
 INSERT INTO items (name, description, attack, defence, wisdom, hit_points, category)
 VALUES 
     ('shield1', 'description6', 0, 0, 0, 0, 'defence'),
-    ('sword1', 'description5', 0, 0, 0, 0, 'attack'),
+    ('sword1', 'description5', 0, 0, 0, 9, 'attack'),
     ('cons1', 'description1', 0, 0, 0, 0, 'consumable'),
     ('cons2', 'description2', 0, 0, 0, 0, 'consumable'),
     ('cons3', 'description3', 0, 0, 0, 0, 'consumable'),

@@ -420,3 +420,67 @@ BEGIN
 END;
 $$ LANGUAGE 'plpgsql';
 
+DROP FUNCTION IF EXISTS fight_enemy(VARCHAR, INTEGER);
+CREATE FUNCTION fight_enemy(user_email VARCHAR(254), enemy_id INTEGER)
+RETURNS TABLE (
+    type VARCHAR,
+    id INTEGER,
+    damage SMALLINT,
+    value SMALLINT,
+    dice SMALLINT,
+    hit BOOLEAN
+) AS $$
+DECLARE
+    fight RECORD;
+BEGIN
+    CREATE TEMP TABLE fights ON COMMIT DROP AS
+    SELECT 
+        R.type::VARCHAR AS type,
+        R.id::INTEGER AS id,
+        R.damage::SMALLINT AS damage,
+        R.value::SMALLINT AS value,
+        R.dice::SMALLINT AS dice,
+        R.value + R.dice > 12 AS hit
+    FROM (
+        (SELECT
+            'attacking' AS type,
+            enemy_id AS id,
+            items.hit_points AS damage,
+            ((characters.strength + characters.dexterity) / 2 + characters.room_attack_bonus - enemies.defence) AS value,
+            (floor(random() * 20) + 1) AS dice
+        FROM characters JOIN items
+        ON characters.equipped_attack_item = items.id
+        JOIN room_enemies ON true
+        JOIN enemies
+        ON room_enemies.enemy = enemies.id
+        WHERE room_enemies.id = enemy_id
+        AND characters."user" = user_email
+        LIMIT 1)
+    UNION
+        (SELECT 
+            'defending' AS type,
+            room_enemies.id AS id,
+            enemies.damage AS damage,
+            enemies.attack - ((characters.constitution + characters.dexterity) / 2 + characters.room_defence_bonus) AS value,
+            floor(random() * 20) + 1 AS dice
+            FROM room_enemies JOIN enemies
+            ON room_enemies.enemy = enemies.id
+            JOIN dungeons
+            ON room_enemies.room = dungeons.current_room
+            JOIN characters
+            ON dungeons."character" = characters.id
+            WHERE characters."user" = user_email)
+    ) AS R;
+    FOR fight IN SELECT * FROM fights LOOP
+        IF fight.type = 'defending' AND fight.hit THEN
+            UPDATE character
+            SET current_hit_points = GREATEST(current_hit_points - damage, 0);
+        ELSE
+            UPDATE room_enemies
+            SET current_hit_points = GREATEST(current_hit_points - damage, 0);
+        END IF;
+    END LOOP;
+    RETURN QUERY SELECT * FROM fights;
+END;
+$$ LANGUAGE 'plpgsql';
+
