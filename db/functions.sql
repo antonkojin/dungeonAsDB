@@ -207,8 +207,8 @@ RETURNS void AS $$
         dungeon_final_room INTEGER;
     BEGIN
         "character" := (SELECT id FROM characters WHERE "user" = email);
-        INSERT INTO dungeons ("character")
-            VALUES ("character") 
+        INSERT INTO dungeons ("character", current_hit_points)
+            SELECT id, constitution + room_hit_points_bonus FROM characters WHERE "user" = email
             RETURNING id INTO dungeon;
         SELECT start_room, final_room FROM generate_rooms(dungeon)
             INTO dungeon_start_room, dungeon_final_room;

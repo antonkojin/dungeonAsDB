@@ -83,6 +83,7 @@ CREATE TABLE rooms (
 CREATE TABLE dungeons (
 	id SERIAL PRIMARY KEY,
 	character INTEGER NOT NULL UNIQUE REFERENCES characters(id) ON DELETE CASCADE,
+    current_hit_points SMALLINT NOT NULL,
 	current_room INTEGER REFERENCES rooms(id),
 	final_room INTEGER REFERENCES rooms(id)
 );
