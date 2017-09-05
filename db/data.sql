@@ -26,4 +26,3 @@ VALUES
     ('enemy5', 'description5', 0, 0, 1, 0),
     ('enemy6', 'description6', 0, 0, 1, 0);
 
--- SELECT create_dungeon('test@test.com');
