@@ -11,15 +11,14 @@ INSERT INTO defaults (key, value) VALUES
 INSERT INTO items (name, description, attack, defence, wisdom, hit_points, category)
 VALUES 
     ('shield1', 'description6', 0, 0, 0, 0, 'defence'),
-    ('sword1', 'description5', 0, 0, 0, 9, 'attack'),
+    ('sword1', 'description5', 0, 0, 0, 99, 'attack'),
     ('cons1', 'description1', 0, 0, 0, 0, 'consumable'),
     ('cons2', 'description2', 0, 0, 0, 0, 'consumable'),
     ('cons3', 'description3', 0, 0, 0, 0, 'consumable'),
     ('cons4', 'description4', 0, 0, 0, 0, 'consumable');
 
-INSERT INTO enemies (name, description, attack, defence, 
-    initial_hit_points, damage
-) VALUES 
+INSERT INTO enemies (name, description, attack, defence, initial_hit_points, damage)
+VALUES 
     ('enemy1', 'description1', 0, 0, 1, 0),
     ('enemy2', 'description2', 0, 0, 1, 0),
     ('enemy3', 'description3', 0, 0, 1, 0),
