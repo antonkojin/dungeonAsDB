@@ -385,36 +385,19 @@ class TestDungeonAsDB(unittest.TestCase):
             )
 
     @unittest.skip('')
-    def test_take_item_from_room(self):
+    def test_use_consumable_item(self):
         self.test_start_dungeon()
         dungeon = requests.get(url('dungeon'), auth=auth).json()
-        items = dungeon['room']['items']
-        if len(items) == 0:
-            self.skipTest('can\'t test, there\'s no items here')
-        item = items[0]
-        response = requests.put(
-            url('dungeon/item/{item}'.format(item=item)),
-            auth=auth
-        )
-        self.assertEqual(
-            response.status_code,
-            codes.no_content
-        )
-
-    @unittest.skip('')
-    def test_use_consumable_item(self):
-        response = requests.get(url('dungeon'), auth=auth)
-        character = response.json()['character']
+        character = dungeon['character']
         items = character['bag']
-        consumable_items = [
-            item
-            for item in items
-            if item['type'] == 'consumable'
-        ]
+        consumable_items = list(filter(
+            lambda i: i['category'] == 'consumable',
+            items
+        ))
         if len(consumable_items) == 0:
             self.skipTest('can\'t test, don\'t have consumable items')
         item = consumable_items[0]
-        response = requests.put(
+        response = requests.post(
             url('dungeon/bag/{item}'.format(item=item['id'])),
             auth=auth
         )
@@ -438,6 +421,23 @@ class TestDungeonAsDB(unittest.TestCase):
         self.assertEqual(
             updated_character['hit_points'],
             character['hit_points'] + item['hit_points']
+        )
+
+    @unittest.skip('')
+    def test_take_item_from_room(self):
+        self.test_start_dungeon()
+        dungeon = requests.get(url('dungeon'), auth=auth).json()
+        items = dungeon['room']['items']
+        if len(items) == 0:
+            self.skipTest('can\'t test, there\'s no items here')
+        item = items[0]
+        response = requests.put(
+            url('dungeon/item/{item}'.format(item=item)),
+            auth=auth
+        )
+        self.assertEqual(
+            response.status_code,
+            codes.no_content
         )
 
     @unittest.skip('')
