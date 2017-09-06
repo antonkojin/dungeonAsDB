@@ -19,10 +19,10 @@ VALUES
 
 INSERT INTO enemies (name, description, attack, defence, initial_hit_points, damage)
 VALUES 
-    ('enemy1', 'description1', 0, 0, 1, 0),
-    ('enemy2', 'description2', 0, 0, 1, 0),
-    ('enemy3', 'description3', 0, 0, 1, 0),
-    ('enemy4', 'description4', 0, 0, 1, 0),
-    ('enemy5', 'description5', 0, 0, 1, 0),
-    ('enemy6', 'description6', 0, 0, 1, 0);
+    ('enemy1', 'description1', 90, 0, 1, 1),
+    ('enemy2', 'description2', 90, 0, 1, 1),
+    ('enemy3', 'description3', 90, 0, 1, 1),
+    ('enemy4', 'description4', 90, 0, 1, 1),
+    ('enemy5', 'description5', 90, 0, 1, 1),
+    ('enemy6', 'description6', 90, 0, 1, 1);
 

@@ -198,24 +198,24 @@ CREATE FUNCTION generate_rooms(
 $$ LANGUAGE 'plpgsql';
 
 DROP FUNCTION IF EXISTS create_dungeon(VARCHAR);
-CREATE FUNCTION create_dungeon(email VARCHAR(254))
+CREATE FUNCTION create_dungeon(user_email VARCHAR(254))
 RETURNS void AS $$
     DECLARE
-        "character" INTEGER;
-        dungeon INTEGER;
+        dungeon_id INTEGER;
         dungeon_start_room INTEGER;
         dungeon_final_room INTEGER;
     BEGIN
-        "character" := (SELECT id FROM characters WHERE "user" = email);
-        INSERT INTO dungeons ("character", current_hit_points)
-            SELECT id, constitution + room_hit_points_bonus FROM characters WHERE "user" = email
-            RETURNING id INTO dungeon;
-        SELECT start_room, final_room FROM generate_rooms(dungeon)
+        INSERT INTO dungeons ("character", current_bonusless_hp)
+            SELECT C.id, C.constitution
+            FROM characters AS C
+            WHERE C."user" = user_email
+            RETURNING id INTO dungeon_id;
+        SELECT start_room, final_room FROM generate_rooms(dungeon_id)
             INTO dungeon_start_room, dungeon_final_room;
         UPDATE dungeons SET
             final_room = dungeon_final_room,
             current_room = dungeon_start_room
-            WHERE id = dungeon;
+            WHERE id = dungeon_id;
     END;
 $$ LANGUAGE 'plpgsql';
 
@@ -246,18 +246,20 @@ RETURNS TABLE(
         C.intellect,
         C.dexterity,
         C.constitution,
-        C.room_attack_bonus,
-        C.room_defence_bonus,
-        C.room_wisdom_bonus,
-        C.room_hit_points_bonus,
-        ((C.strength + C.dexterity) / 2 + C.room_attack_bonus)::SMALLINT,
-        ((C.constitution + C.dexterity) / 2 + C.room_defence_bonus)::SMALLINT,
-        (C.intellect + C.room_wisdom_bonus)::SMALLINT,
-        (C.constitution + C.room_hit_points_bonus)::SMALLINT,
+        D.room_attack_bonus,
+        D.room_defence_bonus,
+        D.room_wisdom_bonus,
+        D.room_hit_points_bonus,
+        ((C.strength + C.dexterity) / 2 + D.room_attack_bonus)::SMALLINT,
+        ((C.constitution + C.dexterity) / 2 + D.room_defence_bonus)::SMALLINT,
+        (C.intellect + D.room_wisdom_bonus)::SMALLINT,
+        (D.current_bonusless_hp + D.room_hit_points_bonus)::SMALLINT,
         C.equipped_defence_item, 
         C.equipped_attack_item
     )
-    FROM characters AS C WHERE C."user" = user_email;
+    FROM characters AS C JOIN dungeons AS D
+    ON D."character" = C.id
+    WHERE C."user" = user_email;
 $$ LANGUAGE 'sql';
 
 DROP FUNCTION IF EXISTS get_character_items(VARCHAR);
@@ -446,10 +448,12 @@ BEGIN
             'attacking' AS type,
             enemy_id AS id,
             items.hit_points AS damage,
-            ((characters.strength + characters.dexterity) / 2 + characters.room_attack_bonus - enemies.defence) AS value,
+            ((characters.strength + characters.dexterity) / 2 + D.room_attack_bonus - enemies.defence) AS value,
             (floor(random() * 20) + 1) AS dice
         FROM characters JOIN items
         ON characters.equipped_attack_item = items.id
+        JOIN dungeons AS D
+        ON D."character" = characters.id
         JOIN room_enemies ON true
         JOIN enemies
         ON room_enemies.enemy = enemies.id
@@ -458,10 +462,10 @@ BEGIN
         LIMIT 1)
     UNION
         (SELECT 
-            'defending' AS type,
+            'defending' AS "type",
             room_enemies.id AS id,
             enemies.damage AS damage,
-            enemies.attack - ((characters.constitution + characters.dexterity) / 2 + characters.room_defence_bonus) AS value,
+            enemies.attack - ((characters.constitution + characters.dexterity) / 2 + D.room_defence_bonus) AS value,
             floor(random() * 20) + 1 AS dice
             FROM room_enemies JOIN enemies
             ON room_enemies.enemy = enemies.id
@@ -469,18 +473,39 @@ BEGIN
             ON room_enemies.room = dungeons.current_room
             JOIN characters
             ON dungeons."character" = characters.id
+            JOIN dungeons AS D
+            ON D."character" = characters.id
             WHERE characters."user" = user_email)
     ) AS R;
-    FOR fight IN SELECT * FROM fights LOOP
-        IF fight.type = 'defending' AND fight.hit THEN
-            UPDATE character
-            SET current_hit_points = GREATEST(current_hit_points - damage, 0);
+    UPDATE dungeons
+        SET current_bonusless_hp = GREATEST(
+            current_bonusless_hp - (
+                SELECT SUM(fights.damage)
+                FROM fights
+                WHERE fights."type" = 'defending'
+                AND fights.hit = true
+            ),
+            0
+        );
+    FOR fight IN (
+        SELECT *
+        FROM fights
+        WHERE fights."type" = 'attacking'
+        AND fights.hit = true
+    ) LOOP
+        IF (
+            SELECT room_enemies.current_hit_points
+            FROM room_enemies
+            WHERE room_enemies.id = fight.id
+        ) - fight.damage <= 0 THEN
+            DELETE FROM room_enemies
+            WHERE room_enemies.id = fight.id;
         ELSE
             UPDATE room_enemies
-            SET current_hit_points = GREATEST(current_hit_points - damage, 0);
+            SET current_hit_points = room_enemies.current_hit_points - fight.damage
+            WHERE room_enemies.id = fight.id;
         END IF;
     END LOOP;
     RETURN QUERY SELECT * FROM fights;
 END;
 $$ LANGUAGE 'plpgsql';
-

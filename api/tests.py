@@ -5,6 +5,7 @@ import requests
 from requests import codes
 from sys import argv as args
 import sys
+from os.path import dirname, realpath
 
 heroku = len(args) >= 2 and args[1] == 'heroku'
 if heroku:
@@ -15,13 +16,10 @@ if heroku:
 else:
     host = 'http://localhost:8000/'
 
-from os.path import dirname, realpath
 if heroku:
     init_db_script = 'heroku run db/heroku_init_db.py db/schema.sql db/data.sql db/functions.sql'
 else:
     init_db_script = dirname(realpath(__file__)) + '/../db/docker_init_db.sh schema.sql functions.sql data.sql'
-clean_db_script = 'heroku run db/heroku_init_db.py db/schema.sql db/data.sql' if heroku else dirname(
-        realpath(__file__)) + '/../db/docker_init_db.sh schema.sql functions.sql data.sql'
 
 
 def url(path):
@@ -344,30 +342,46 @@ class TestDungeonAsDB(unittest.TestCase):
                 self.assertEqual(fight['id'], enemy['id'])
                 value = character['attack'] - enemy['defence']
                 if fight['hit']:
-                    self.assertEqual(
-                        [
-                            enemy['hit_points']
-                            for enemy in after_attack_status['room']['enemies']
-                            if enemy['id'] == enemy['id']
-                        ][0],
-                        max(enemy['hit_points'] - fight['damage'], 0)
-                    )
+                    if enemy['hit_points'] - fight['damage'] <= 0:
+                        self.assertEqual(
+                            len(list(filter(
+                                lambda e: e['id'] == enemy['id'],
+                                after_attack_status['room']['enemies']
+                            ))),
+                            0
+                        )
+                    else:
+                        self.assertEqual(
+                            [
+                                e['hit_points']
+                                for e in after_attack_status['room']['enemies']
+                                if e['id'] == enemy['id']
+                            ][0],
+                            enemy['hit_points'] - fight['damage']
+                        )
             elif fight['type'] == 'defending':
-                self.assertIn(fight['id'], map(lambda enemy: enemy['id'], enemies))
+                self.assertIn(
+                    fight['id'],
+                    map(lambda enemy: enemy['id'], enemies)
+                )
                 value = [
                     enemy['attack'] - character['defence']
                     for enemy in enemies if enemy['id'] == fight['id']
                 ][0]
-                if fight['hit']:
-                    self.assertEqual(
-                        after_attack_status['character']['hit_points'],
-                        max(character['hit_points'] - fight['damage'], 0)
-                    )
             self.assertEqual(fight['value'], value)
             self.assertIn(fight['dice'], range(1, 21))
             self.assertEqual(
-                    value + fight['dice'] > 12,
-                    fight['hit']
+                value + fight['dice'] > 12,
+                fight['hit']
+            )
+            all_damage = sum([
+                f['damage']
+                for f in fights
+                if f['type'] == 'defending' and f['hit']
+            ])
+            self.assertEqual(
+                after_attack_status['character']['hit_points'],
+                character['hit_points'] - all_damage
             )
 
     @unittest.skip('')

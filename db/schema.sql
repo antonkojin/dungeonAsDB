@@ -55,15 +55,11 @@ CREATE TABLE characters (
 	constitution SMALLINT NOT NULL CHECK (strength >= 3 AND strength <= 18),
 	equipped_defence_item INTEGER REFERENCES items(id),
 	equipped_attack_item INTEGER REFERENCES items(id),
-	"user" VARCHAR(254) NOT NULL UNIQUE REFERENCES users(email) ON DELETE CASCADE,
+	"user" VARCHAR(254) NOT NULL UNIQUE REFERENCES users(email) ON DELETE CASCADE
 --	attack = (strength + dexterity) / 2 + bonus
 --	defence = (constitution + dexterity) / 2 + bonus
 --	wisdom = intellect + bonus
 --	hit_points = constitution + bonus
-	room_attack_bonus SMALLINT DEFAULT 0,
-	room_defence_bonus SMALLINT DEFAULT 0,
-	room_wisdom_bonus SMALLINT DEFAULT 0,
-	room_hit_points_bonus SMALLINT DEFAULT 0
 );
 
 CREATE TABLE rooms_descriptions (
@@ -83,7 +79,11 @@ CREATE TABLE rooms (
 CREATE TABLE dungeons (
 	id SERIAL PRIMARY KEY,
 	character INTEGER NOT NULL UNIQUE REFERENCES characters(id) ON DELETE CASCADE,
-    current_hit_points SMALLINT NOT NULL,
+    current_bonusless_hp SMALLINT NOT NULL,
+	room_attack_bonus SMALLINT NOT NULL DEFAULT 0,
+	room_defence_bonus SMALLINT NOT NULL DEFAULT 0,
+	room_wisdom_bonus SMALLINT NOT NULL DEFAULT 0,
+	room_hit_points_bonus SMALLINT NOT NULL DEFAULT 0,
 	current_room INTEGER REFERENCES rooms(id),
 	final_room INTEGER REFERENCES rooms(id)
 );
