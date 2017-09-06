@@ -45,6 +45,12 @@ CREATE TABLE items (
 	category ITEM_CATEGORY NOT NULL
 );
 
+CREATE TABLE character_items (
+	id SERIAL PRIMARY KEY,
+	character INTEGER NOT NULL,
+	item INTEGER REFERENCES items(id) NOT NULL
+);
+
 CREATE TABLE characters (
 	id SERIAL PRIMARY KEY,
 	name VARCHAR(20) NOT NULL,
@@ -53,14 +59,12 @@ CREATE TABLE characters (
 	intellect SMALLINT NOT NULL CHECK (strength >= 3 AND strength <= 18),
 	dexterity SMALLINT NOT NULL CHECK (strength >= 3 AND strength <= 18),
 	constitution SMALLINT NOT NULL CHECK (strength >= 3 AND strength <= 18),
-	equipped_defence_item INTEGER REFERENCES items(id),
-	equipped_attack_item INTEGER REFERENCES items(id),
+	equipped_defence_item INTEGER REFERENCES character_items(id),
+	equipped_attack_item INTEGER REFERENCES character_items(id),
 	"user" VARCHAR(254) NOT NULL UNIQUE REFERENCES users(email) ON DELETE CASCADE
---	attack = (strength + dexterity) / 2 + bonus
---	defence = (constitution + dexterity) / 2 + bonus
---	wisdom = intellect + bonus
---	hit_points = constitution + bonus
 );
+
+ALTER TABLE character_items ADD CONSTRAINT character_items_character_fkey FOREIGN KEY ("character") REFERENCES characters(id) ON DELETE CASCADE;
 
 CREATE TABLE rooms_descriptions (
     id SERIAL PRIMARY KEY,
@@ -89,12 +93,6 @@ CREATE TABLE dungeons (
 );
 
 ALTER TABLE rooms ADD CONSTRAINT rooms_dungeon_fkey FOREIGN KEY (dungeon) REFERENCES dungeons(id) ON DELETE CASCADE;
-
-CREATE TABLE character_items (
-	id SERIAL PRIMARY KEY,
-	character INTEGER NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
-	item INTEGER REFERENCES items(id) NOT NULL
-);
 
 CREATE TABLE enemies (
 	id SERIAL PRIMARY KEY,

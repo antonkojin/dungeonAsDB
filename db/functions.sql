@@ -41,6 +41,8 @@ CREATE FUNCTION create_character(
     constitution_roll INTEGER,
     email VARCHAR(254)
 ) RETURNS VOID AS $$
+DECLARE
+    character_id INTEGER;
 BEGIN
     if (
         strength_roll = intellect_roll
@@ -58,8 +60,6 @@ BEGIN
         intellect, 
         dexterity, 
         constitution,
-        equipped_defence_item,
-        equipped_attack_item,
         "user"
     ) VALUES (
         name, 
@@ -87,15 +87,27 @@ BEGIN
             FROM rolls
             WHERE id = constitution_roll
             AND "user" = email
-        ), 
-        (
-            SELECT value FROM defaults WHERE key = 'initial_defence_item'
-        ),
-        (
-            SELECT value FROM defaults WHERE key = 'initial_attack_item'   
         ),
         email
-    );
+    ) RETURNING id INTO character_id;
+    INSERT INTO character_items ("character", item)
+        SELECT character_id, value FROM defaults WHERE key like 'initial\_%\_item';
+    UPDATE characters SET
+        equipped_defence_item = (
+            SELECT CI.id FROM character_items AS CI JOIN items AS I
+                ON I.id = CI.item
+            JOIN defaults AS D
+                ON D.value = I.id
+            WHERE D.key = 'initial_defence_item'
+        ),
+        equipped_attack_item = (
+            SELECT CI.id FROM character_items AS CI JOIN items AS I
+                ON I.id = CI.item
+            JOIN defaults AS D
+                ON D.value = I.id
+            WHERE D.key = 'initial_attack_item'
+        )
+        WHERE characters.id = character_id;
     DELETE FROM rolls WHERE "user" = email;
 END;
 $$ LANGUAGE 'plpgsql';
@@ -274,24 +286,13 @@ RETURNS TABLE (
     hit_points SMALLINT,
     category ITEM_CATEGORY
 )AS $$ 
-    (
-        SELECT character_items.id, items.name, items.description, items.attack,
-            items.defence, items.wisdom, items.hit_points, items.category
-        FROM characters JOIN character_items
-        ON characters.id = character_items."character"
-        JOIN items
-        ON items.id = character_items.item
-        WHERE characters."user" = user_email
-    )
-    UNION
-    (
-        SELECT items.id, items.name, items.description, items.attack,
-            items.defence, items.wisdom, items.hit_points, items.category
-        FROM items JOIN characters
-        ON items.id = characters.equipped_defence_item
-        OR items.id = characters.equipped_attack_item
-        WHERE characters."user" = user_email
-    );
+    SELECT character_items.id, items.name, items.description, items.attack,
+        items.defence, items.wisdom, items.hit_points, items.category
+    FROM characters JOIN character_items
+    ON characters.id = character_items."character"
+    JOIN items
+    ON items.id = character_items.item
+    WHERE characters."user" = user_email;
 $$ LANGUAGE 'sql';
 
 DROP FUNCTION IF EXISTS get_room(VARCHAR);
@@ -450,15 +451,16 @@ BEGIN
             items.hit_points AS damage,
             ((characters.strength + characters.dexterity) / 2 + D.room_attack_bonus - enemies.defence) AS value,
             (floor(random() * 20) + 1) AS dice
-        FROM characters JOIN items
-        ON characters.equipped_attack_item = items.id
+        FROM characters JOIN character_items
+        ON characters.equipped_attack_item = character_items.id
+        JOIN items
+        ON items.id = character_items.item
         JOIN dungeons AS D
         ON D."character" = characters.id
-        JOIN room_enemies ON true
+        JOIN room_enemies ON room_enemies.id = enemy_id
         JOIN enemies
         ON room_enemies.enemy = enemies.id
-        WHERE room_enemies.id = enemy_id
-        AND characters."user" = user_email
+        WHERE characters."user" = user_email
         LIMIT 1)
     UNION
         (SELECT 
