@@ -387,10 +387,11 @@ class TestDungeonAsDB(unittest.TestCase):
     @unittest.skip('')
     def test_take_item_from_room(self):
         self.test_start_dungeon()
-        response = requests.get(url('dungeon'), auth=auth)
-        items = response.json()['room']['items']
+        dungeon = requests.get(url('dungeon'), auth=auth).json()
+        items = dungeon['room']['items']
         if len(items) == 0:
             self.skipTest('can\'t test, there\'s no items here')
+        item = items[0]
         response = requests.put(
             url('dungeon/item/{item}'.format(item=item)),
             auth=auth
