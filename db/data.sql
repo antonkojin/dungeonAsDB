@@ -6,13 +6,14 @@ VALUES (0, 'FINAL_ROOM');
 INSERT INTO defaults (key, value) VALUES 
 ('final_room_description', 0),
 ('initial_defence_item', 1),
-('initial_attack_item', 2);
+('initial_attack_item', 2),
+('initial_consumable_item', 3);
 
 INSERT INTO items (name, description, attack, defence, wisdom, hit_points, category)
 VALUES 
     ('shield1', 'description6', 0, 0, 0, 0, 'defence'),
     ('sword1', 'description5', 0, 0, 0, 99, 'attack'),
-    ('cons1', 'description1', 0, 0, 0, 0, 'consumable'),
+    ('cons1', 'description1', 3, -3, 6, -2, 'consumable'),
     ('cons2', 'description2', 0, 0, 0, 0, 'consumable'),
     ('cons3', 'description3', 0, 0, 0, 0, 'consumable'),
     ('cons4', 'description4', 0, 0, 0, 0, 'consumable');
