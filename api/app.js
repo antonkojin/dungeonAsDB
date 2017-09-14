@@ -1,7 +1,7 @@
 const express = require('express')
 const cors = require('cors')
 const helmet = require('helmet')
-const auth = require('basic-auth')
+const basicAuth = require('basic-auth')
 const passwordHash = require('password-hash');
 const pgp = require('pg-promise')(/* init options */)
 
@@ -33,7 +33,7 @@ app.use(function(req, res, next) {
     if (req.method == 'POST' && req.path == '/user') {
        return next(); 
     }
-    const auth = auth(req)
+    const auth = basicAuth(req)
     if ( !auth || !checkPassword(auth.name, auth.password) ) {
         res.status(401).set('WWW-Authenticate', 'Basic');
     }
