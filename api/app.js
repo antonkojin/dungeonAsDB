@@ -10,15 +10,6 @@ const db = pgp(process.env.DATABASE_URL)
 app.use(helmet());
 app.use(cors());
 
-/*
-// CORS support
-app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});
-*/
-
 function checkPassword(user, password) {
     db.one('SELECT password_hash FROM users WHERE email = $1', user)
     .then(data => {
