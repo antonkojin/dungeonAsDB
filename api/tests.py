@@ -14,7 +14,7 @@ if heroku:
 if heroku:
     host = 'https://progetto-db.herokuapp.com/'
 else:
-    host = 'http://localhost:8000/'
+    host = 'http://localhost:8080/'
 
 if heroku:
     init_db_script = 'heroku run db/heroku_init_db.py db/schema.sql db/data.sql db/functions.sql'

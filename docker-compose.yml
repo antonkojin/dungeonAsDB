@@ -5,7 +5,8 @@ services:
     build: api/
     image: api
     ports:
-      - 8000:5000
+      - 8080:80
+      - 8443:443
     volumes:
       - ./api:/usr/src/app
     environment:
