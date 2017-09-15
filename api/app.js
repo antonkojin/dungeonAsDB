@@ -17,14 +17,16 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const checkPassword = (user, password) => {
-    winston.info({user: user, password: password});
     return db.one('SELECT password_hash FROM users WHERE email = $1', user)
         .then(data => {
             return passwordHash.verify(password, data.password_hash);
         })
         .catch(error => {
+            if (error instanceof pgp.errors.QueryResultError && error.code === pgp.errors.queryResultErrorCode.noData) {
+                return false;
+            }
             winston.error(error);
-            return false;
+            res.sendStatus(500);
         });
 };
 
