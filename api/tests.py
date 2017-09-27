@@ -17,9 +17,19 @@ else:
     host = 'http://localhost:8000/'
 
 if heroku:
-    init_db_script = 'heroku run db/heroku_init_db.py db/schema.sql db/data.sql db/functions.sql'
+    init_db_script = (
+        'heroku run db/heroku_init_db.py'
+        'db/schema.sql'
+        'db/data.sql'
+        'db/functions.sql'
+    )
 else:
-    init_db_script = dirname(realpath(__file__)) + '/../db/docker_init_db.sh schema.sql functions.sql data.sql'
+    init_db_script = dirname(realpath(__file__)) + (
+        '/../db/docker_init_db.sh'
+        'schema.sql'
+        'functions.sql'
+        'data.sql'
+    )
 
 
 def url(path):
