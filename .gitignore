@@ -99,3 +99,6 @@ ENV/
 
 # mypy
 .mypy_cache/
+.tern-project
+node_modules/
+package-lock.json
