@@ -91,7 +91,6 @@ class TestDungeonAsDB(unittest.TestCase):
             codes.unauthorized
         )
 
-    @unittest.skip('')
     def test_create_character(self):
         self.test_signup()
         rolls = requests.get(url('dices'), auth=auth).json()
@@ -114,7 +113,6 @@ class TestDungeonAsDB(unittest.TestCase):
             codes.created
         )
 
-    @unittest.skip('')
     def test_cant_roll_twice_character_dices(self):
         self.test_signup()
         rolls_response = requests.get(url('dices'), auth=auth)
@@ -147,7 +145,6 @@ class TestDungeonAsDB(unittest.TestCase):
             codes.not_found
         )
 
-    @unittest.skip('')
     def test_cant_create_another_character(self):
         self.test_signup()
         rolls = requests.get(url('dices'), auth=auth).json()
@@ -171,7 +168,6 @@ class TestDungeonAsDB(unittest.TestCase):
             ]
         )
 
-    @unittest.skip('')
     def test_cant_create_wrong_character(self):
         self.test_signup()
         rolls = requests.get(url('dices'), auth=auth).json()

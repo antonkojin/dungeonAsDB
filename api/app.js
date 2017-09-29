@@ -7,6 +7,7 @@ const basicAuth = require('basic-auth')
 const passwordHash = require('password-hash');
 const pgp = require('pg-promise')(/* init options */)
 const winston = require('winston')
+const util = require('util');
 
 const app = express()
 const db = pgp(process.env.DATABASE_URL)
@@ -90,6 +91,51 @@ app.delete('/user', (req, res) => {
         .catch(error => {
             winston.error(error);
             res.sendStatus(500);
+        });
+});
+
+app.get('/dices', (req, res) => {
+    db.func('get_character_dices', req.auth.user, pgp.queryResult.many)
+        .then(dices => {
+            res.status(200).json(dices);
+        })
+        .catch(error => {
+            if (error instanceof pgp.errors.QueryResultError
+                && error.code === pgp.errors.queryResultErrorCode.noData
+            ) {
+                res.sendStatus(404);
+            } else {
+                winston.error(error);
+                res.sendStatus(500);
+            }
+        });
+});
+
+app.post('/character', (req, res) => {
+    winston.info(req.body);
+    db.func('create_character', [
+        req.body.name,
+        req.body.description,
+        req.body.strength,
+        req.body.intellect,
+        req.body.dexterity,
+        req.body.constitution,
+        req.auth.user
+    ])
+        .then(() => {
+            res.sendStatus(201);
+        })
+        .catch(error => {
+            winston.error(util.inspect(error));
+            if (error.code == 23502) { // not_null_violation
+                res.sendStatus(400);
+            } else if (error.code == 23505) { // unique_violation
+                res.sendStatus(409);
+            } else if (error.code === 'P0001') { // raised exception
+                res.sendStatus(400);
+            } else {
+                res.sendStatus(500);
+            }
         });
 });
 
