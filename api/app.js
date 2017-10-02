@@ -139,4 +139,16 @@ app.post('/character', (req, res) => {
         });
 });
 
+app.post('/dungeon', (req, res) => {
+    db.func('create_dungeon', req.auth.user)
+        .then( () => {
+            res.sendStatus(201);
+        })
+        .catch( error => {
+            if (error.code == 23505) { // unique_violation
+                res.sendStatus(409);
+            }
+        });
+});
+
 app.listen(5000)

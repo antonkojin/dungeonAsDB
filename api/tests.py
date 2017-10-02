@@ -185,7 +185,6 @@ class TestDungeonAsDB(unittest.TestCase):
             codes.bad_request
         )
 
-    @unittest.skip('')
     def test_start_dungeon(self):
         self.test_create_character()
         response = requests.post(url('dungeon'), auth=auth)
@@ -194,7 +193,6 @@ class TestDungeonAsDB(unittest.TestCase):
             codes.created
         )
 
-    @unittest.skip('')
     def test_cant_start_another_dungeon(self):
         self.test_start_dungeon()
         requests.post(url('dungeon'), auth=auth)
