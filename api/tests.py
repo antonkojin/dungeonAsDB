@@ -300,7 +300,6 @@ class TestDungeonAsDB(unittest.TestCase):
             codes.ok
         )
 
-    @unittest.skip('')
     def test_follow_gate_to_other_room(self):
         self.test_start_dungeon()
         old_room = requests.get(url('dungeon'), auth=auth).json()['room']

@@ -187,4 +187,14 @@ app.delete('/dungeon', (req, res) => {
         });
 });
 
+app.get('/dungeon/gate/:gateId', (req, res) => {
+    db.func('follow_gate', [req.auth.user, req.params.gateId])
+        .then(() => {
+            res.sendStatus(200);
+        })
+        .catch(error => {
+            winston.error(util.inspect(error));
+        });
+});
+
 app.listen(5000)
