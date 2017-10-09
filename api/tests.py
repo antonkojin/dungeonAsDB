@@ -202,7 +202,6 @@ class TestDungeonAsDB(unittest.TestCase):
             codes.conflict
         )
 
-    @unittest.skip('')
     def test_dungeon_status(self):
         self.test_start_dungeon()
         response = requests.get(url('dungeon'), auth=auth)

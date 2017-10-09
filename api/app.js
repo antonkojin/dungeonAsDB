@@ -151,4 +151,30 @@ app.post('/dungeon', (req, res) => {
         });
 });
 
+app.get('/dungeon', (req, res) => {
+    db.tx(t => {
+        return t.batch([
+            db.func('get_character', req.auth.user).then(d => d[0]),
+            db.func('get_character_items', req.auth.user),
+            db.func('get_room', req.auth.user).then(d => d[0]),
+            db.func('get_room_items', req.auth.user),
+            db.func('get_room_enemies', req.auth.user),
+            db.func('get_room_gates', req.auth.user)
+        ]);
+    })
+        .then(data => {
+            const dungeonStatus = {};
+            dungeonStatus.character = data[0];
+            dungeonStatus.character.bag = data[1];
+            dungeonStatus.room = data[2];
+            dungeonStatus.room.items = data[3];
+            dungeonStatus.room.enemies = data[4];
+            dungeonStatus.room.gates = data[5];
+            res.json(dungeonStatus);
+        })
+        .catch(error => {
+            winston.error(util.inspect(error));
+        });
+});
+
 app.listen(5000)
