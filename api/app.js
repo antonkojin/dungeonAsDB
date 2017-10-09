@@ -177,4 +177,14 @@ app.get('/dungeon', (req, res) => {
         });
 });
 
+app.delete('/dungeon', (req, res) => {
+    db.func('end_dungeon', req.auth.user)
+        .then(() => {
+            res.sendStatus(200);
+        })
+        .catch(error => {
+            winston.error(util.inspect(error));
+        });
+});
+
 app.listen(5000)

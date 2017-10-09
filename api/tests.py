@@ -277,7 +277,6 @@ class TestDungeonAsDB(unittest.TestCase):
             self.assertIn('id', gate)
             self.assertIn('room', gate)
 
-    @unittest.skip('')
     def test_end_dungeon(self):
         self.test_start_dungeon()
         self.assertEqual(
