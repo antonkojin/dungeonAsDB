@@ -322,7 +322,6 @@ class TestDungeonAsDB(unittest.TestCase):
             new_room['id']
         )
 
-    @unittest.skip('')
     def test_fight(self):
         # A vs B
         # X = A.att - B.dif

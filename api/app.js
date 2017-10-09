@@ -197,4 +197,15 @@ app.get('/dungeon/gate/:gateId', (req, res) => {
         });
 });
 
+app.post('/dungeon/enemy/:enemyId', (req, res) => {
+    db.func('fight_enemy', [req.auth.user, req.params.enemyId])
+        .then(data => {
+            winston.info(util.inspect(data));
+            res.json(data);
+        })
+        .catch(error => {
+            winston.error(util.inspect(error));
+        });
+});
+
 app.listen(5000)
