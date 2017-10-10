@@ -520,6 +520,9 @@ class TestDungeonAsDB(unittest.TestCase):
             else None
         )
 
+        # TODO: test_cant_take_too_many_items
+
+        # TODO: test_drop_bonus_on_room_change
 
 if __name__ == '__main__':
     from colour_runner.runner import ColourTextTestRunner
