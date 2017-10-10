@@ -64,7 +64,7 @@ app.post('/user', (req, res) => {
     ).then(() => {
         res.sendStatus(204);
     }).catch(error => {
-        winston.warning(error);
+        winston.error(error);
         res.sendStatus(409);
     });
 });
