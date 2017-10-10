@@ -220,4 +220,14 @@ app.post('/dungeon/item/:itemId', (req, res) => {
         });
 });
 
+app.post('/dungeon/bag/:itemId', (req, res) => {
+    db.func('use_item', [req.auth.user, req.params.itemId])
+        .then(() => {
+            res.sendStatus(200);
+        })
+        .catch(error => {
+            winston.error(util.inspect(error));
+        });
+});
+
 app.listen(5000)

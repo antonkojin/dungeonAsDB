@@ -531,3 +531,31 @@ BEGIN
     RETURN character_item_id;
 END;
 $$ LANGUAGE 'plpgsql';
+
+DROP FUNCTION IF EXISTS use_item(VARCHAR, INTEGER);
+CREATE FUNCTION use_item(user_email VARCHAR(254), character_item_id INTEGER)
+RETURNS VOID AS $$
+DECLARE
+    character_id INTEGER;
+BEGIN
+    SELECT id FROM characters WHERE "user" = user_email INTO character_id;
+    UPDATE dungeons
+        SET (
+            room_attack_bonus,
+            room_defence_bonus,
+            room_wisdom_bonus,
+            room_hit_points_bonus
+        ) = (
+            SELECT
+                room_attack_bonus + I.attack,
+                room_defence_bonus + I.defence,
+                room_wisdom_bonus + I.wisdom,
+                room_hit_points_bonus + I.hit_points
+            FROM character_items AS CI JOIN items AS I
+            ON CI.item = I.id
+            WHERE CI."character" = character_id
+            AND CI.id = character_item_id
+        )
+        WHERE dungeons."character" = character_id;
+END;
+$$ LANGUAGE 'plpgsql';

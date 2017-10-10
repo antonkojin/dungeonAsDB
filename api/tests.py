@@ -438,7 +438,6 @@ class TestDungeonAsDB(unittest.TestCase):
             len(character_items) + 1
         )
 
-    @unittest.skip('')
     def test_use_consumable_item(self):
         self.test_start_dungeon()
         dungeon = requests.get(url('dungeon'), auth=auth).json()
@@ -459,7 +458,7 @@ class TestDungeonAsDB(unittest.TestCase):
             response.status_code,
             codes.ok
         )
-        updated_character = response.json()['character']
+        updated_character = requests.get(url('dungeon'), auth=auth).json()['character']
         self.assertEqual(
             updated_character['attack'],
             character['attack'] + item['attack']
