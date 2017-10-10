@@ -511,3 +511,23 @@ BEGIN
     RETURN QUERY SELECT * FROM fights;
 END;
 $$ LANGUAGE 'plpgsql';
+
+DROP FUNCTION IF EXISTS take_item(VARCHAR, INTEGER);
+CREATE FUNCTION take_item(user_email VARCHAR(254), item_id INTEGER)
+RETURNS INTEGER AS $$
+DECLARE
+    character_item_id INTEGER;
+BEGIN
+    INSERT INTO character_items ("character", item) (
+        SELECT characters.id, room_items.item
+            FROM room_items JOIN dungeons
+                ON dungeons.current_room = room_items.room
+            JOIN characters
+                ON characters.id = dungeons."character"
+            WHERE characters."user" = user_email
+                AND room_items.id = item_id
+        ) RETURNING id INTO character_item_id;
+    DELETE FROM room_items WHERE room_items.id = item_id;
+    RETURN character_item_id;
+END;
+$$ LANGUAGE 'plpgsql';

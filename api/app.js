@@ -208,4 +208,16 @@ app.post('/dungeon/enemy/:enemyId', (req, res) => {
         });
 });
 
+app.post('/dungeon/item/:itemId', (req, res) => {
+    db.func('take_item', [req.auth.user, req.params.itemId])
+        .then(([data]) => {
+            const id = {'id': data.take_item};
+            winston.info(util.inspect(id));
+            res.json(id);
+        })
+        .catch(error => {
+            winston.error(util.inspect(error));
+        });
+});
+
 app.listen(5000)

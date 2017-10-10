@@ -55,6 +55,7 @@ class TestDungeonAsDB(unittest.TestCase):
         from os import devnull
         import subprocess
         with open(devnull, 'w') as DEVNULL:
+            # TODO: if db init fails, fail tests, too
             subprocess.call(init_db_script, shell=True,
                             stdout=DEVNULL, stderr=subprocess.STDOUT)
 
@@ -390,6 +391,53 @@ class TestDungeonAsDB(unittest.TestCase):
                 character['hit_points'] - all_damage
             )
 
+    def fight_til_clear_or_die(self):
+        dungeon = requests.get(url('dungeon'), auth=auth).json()
+        there_are_enemies = len(dungeon['room']['enemies']) > 0
+        me_alive = dungeon['character']['hit_points'] > 0
+        while there_are_enemies and me_alive :
+            enemies = dungeon['room']['enemies']
+            enemy = enemies[0]
+            requests.post(
+                url('dungeon/enemy/{enemy_id}'.format(enemy_id=enemy['id'])),
+                auth=auth)
+            dungeon = requests.get(url('dungeon'), auth=auth).json()
+            there_are_enemies = len(dungeon['room']['enemies']) > 0
+            me_alive = dungeon['character']['hit_points'] > 0
+        return me_alive
+
+    def test_take_item_from_room(self):
+        self.test_start_dungeon()
+        dungeon = requests.get(url('dungeon'), auth=auth).json()
+        items = dungeon['room']['items']
+        while len(items) == 0:
+            import random
+            gate_id = random.choice(dungeon['room']['gates'])['id']
+            requests.get(
+                url('dungeon/gate/{gate_id}'.format(gate_id=gate_id)),
+                auth=auth
+            )
+            dungeon = requests.get(url('dungeon'), auth=auth).json()
+            items = dungeon['room']['items']
+        if not self.fight_til_clear_or_die():
+            self.skipTest('died while clearing room from enemies')
+        character_items = dungeon['character']['bag']
+        item_id = items[0]['id']
+        response = requests.post(
+            url('dungeon/item/{item}'.format(item=item_id)),
+            auth=auth
+        )
+        self.assertEqual(
+            response.status_code,
+            codes.ok
+        )
+        self.assertEqual(type(response.json()['id']), type(1))
+        updated_character_items = requests.get(url('dungeon'), auth=auth).json()['character']['bag']
+        self.assertEqual(
+            len(updated_character_items),
+            len(character_items) + 1
+        )
+
     @unittest.skip('')
     def test_use_consumable_item(self):
         self.test_start_dungeon()
@@ -427,23 +475,6 @@ class TestDungeonAsDB(unittest.TestCase):
         self.assertEqual(
             updated_character['hit_points'],
             character['hit_points'] + item['hit_points']
-        )
-
-    @unittest.skip('')
-    def test_take_item_from_room(self):
-        self.test_start_dungeon()
-        dungeon = requests.get(url('dungeon'), auth=auth).json()
-        items = dungeon['room']['items']
-        if len(items) == 0:
-            self.skipTest('can\'t test, there\'s no items here')
-        item = items[0]
-        response = requests.put(
-            url('dungeon/item/{item}'.format(item=item)),
-            auth=auth
-        )
-        self.assertEqual(
-            response.status_code,
-            codes.no_content
         )
 
     @unittest.skip('')
