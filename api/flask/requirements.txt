@@ -1,5 +1,0 @@
-Flask
-flask_httpauth
-flask-cors
-psycopg2
-gunicorn
