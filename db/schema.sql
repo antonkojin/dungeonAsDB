@@ -22,7 +22,7 @@ CREATE table defaults (
 CREATE TABLE users (
 	email VARCHAR(254) PRIMARY KEY,
 	nickname VARCHAR(20) NOT NULL UNIQUE,
-	password_hash CHARACTER(93) NOT NULL
+	password_hash VARCHAR NOT NULL
 );
 
 CREATE TABLE rolls (

@@ -1,9 +1,13 @@
-FROM python:3
+FROM node
 
-WORKDIR /code
+# Create app directory
+WORKDIR /usr/src/app
 
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+# Install app dependencies
+COPY package.json .
+RUN npm install
 
+# Bundle app source
 COPY . .
-CMD ["python", "app.py"]
+
+CMD [ "npm", "start" ]
