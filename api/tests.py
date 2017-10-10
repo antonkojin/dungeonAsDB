@@ -65,9 +65,9 @@ class TestDungeonAsDB(unittest.TestCase):
     def test_signup(self):
         request_data = user
         response = requests.post(url('user'), data=request_data)
-        self.assertEqual(
+        self.assertIn(
             response.status_code,
-            codes.no_content
+            [codes.no_content, codes.conflict]
         )
 
     def test_login(self):
