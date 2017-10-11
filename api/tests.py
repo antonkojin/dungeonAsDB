@@ -18,10 +18,10 @@ else:
 
 if heroku:
     init_db_script = (
-        'heroku run db/heroku_init_db.py'
-        'db/schema.sql'
-        'db/data.sql'
-        'db/functions.sql'
+        'heroku run node db/heroku_init_db.js '
+        ' db/schema.sql'
+        ' db/data.sql'
+        ' db/functions.sql'
     )
 else:
     init_db_script = dirname(realpath(__file__)) + (
@@ -58,6 +58,13 @@ class TestDungeonAsDB(unittest.TestCase):
             # TODO: if db init fails, fail tests, too
             subprocess.call(init_db_script, shell=True,
                             stdout=DEVNULL, stderr=subprocess.STDOUT)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.setUpClass()
+
+    def setUp(self):
+        self.tearDown()
 
     def tearDown(self):
         requests.delete(url('user'), auth=auth)

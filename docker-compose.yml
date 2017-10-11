@@ -10,6 +10,7 @@ services:
       - ./api:/usr/src/app
     environment:
       - DATABASE_URL=postgres://dungeon_as_db_superuser@db:5432/dungeon_as_db
+      - PORT=5000
     command: npm run-script dev
   db:
     restart: unless-stopped
