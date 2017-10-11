@@ -59,13 +59,6 @@ class TestDungeonAsDB(unittest.TestCase):
             subprocess.call(init_db_script, shell=True,
                             stdout=DEVNULL, stderr=subprocess.STDOUT)
 
-    @classmethod
-    def tearDownClass(cls):
-        cls.setUpClass()
-
-    def setUp(self):
-        self.tearDown()
-
     def tearDown(self):
         requests.delete(url('user'), auth=auth)
 
