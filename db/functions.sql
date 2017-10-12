@@ -539,24 +539,36 @@ DECLARE
     character_id INTEGER;
 BEGIN
     SELECT id FROM characters WHERE "user" = user_email INTO character_id;
-    UPDATE dungeons
-        SET (
-            room_attack_bonus,
-            room_defence_bonus,
-            room_wisdom_bonus,
-            room_hit_points_bonus
-        ) = (
-            SELECT
-                room_attack_bonus + I.attack,
-                room_defence_bonus + I.defence,
-                room_wisdom_bonus + I.wisdom,
-                room_hit_points_bonus + I.hit_points
-            FROM character_items AS CI JOIN items AS I
-            ON CI.item = I.id
-            WHERE CI."character" = character_id
-            AND CI.id = character_item_id
-        )
-        WHERE dungeons."character" = character_id;
+    CASE (
+        SELECT category FROM items JOIN character_items
+        ON items.id = character_items.item
+        WHERE character_items.id = character_item_id
+    ) WHEN 'consumable' THEN
+        UPDATE dungeons
+            SET (
+                room_attack_bonus,
+                room_defence_bonus,
+                room_wisdom_bonus,
+                room_hit_points_bonus
+            ) = (
+                SELECT
+                    room_attack_bonus + I.attack,
+                    room_defence_bonus + I.defence,
+                    room_wisdom_bonus + I.wisdom,
+                    room_hit_points_bonus + I.hit_points
+                FROM character_items AS CI JOIN items AS I
+                ON CI.item = I.id
+                WHERE CI."character" = character_id
+                AND CI.id = character_item_id
+            )
+            WHERE dungeons."character" = character_id;
+    WHEN 'defence' THEN
+        UPDATE characters SET equipped_defence_item = character_item_id
+        WHERE characters.id = character_id;
+    WHEN 'attack' THEN
+        UPDATE characters SET equipped_attack_item = character_item_id
+        WHERE characters.id = character_id;
+    END CASE;
 END;
 $$ LANGUAGE 'plpgsql';
 

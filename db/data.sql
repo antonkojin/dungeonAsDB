@@ -14,6 +14,10 @@ VALUES
     ('shield1', 'description6', 0, 0, 0, 0, 'defence'),
     ('sword1', 'description5', 0, 0, 0, 99, 'attack'),
     ('cons1', 'description1', 3, -3, 6, -2, 'consumable'),
+    ('shield2', 'description7', 0, 0, 0, 0, 'defence'),
+    ('sword2', 'description8', 0, 0, 0, 99, 'attack'),
+    ('shield3', 'description9', 0, 0, 0, 0, 'defence'),
+    ('sword3', 'description10', 0, 0, 0, 99, 'attack'),
     ('cons2', 'description2', 0, 0, 0, 0, 'consumable'),
     ('cons3', 'description3', 0, 0, 0, 0, 'consumable'),
     ('cons4', 'description4', 0, 0, 0, 0, 'consumable');

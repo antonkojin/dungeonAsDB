@@ -528,47 +528,57 @@ class TestDungeonAsDB(unittest.TestCase):
                 before_bonus_character['hit_points']
         )
 
-    @unittest.skip('')
-    def test_equip_wearable_item(self):
-        response = requests.get(url('dungeon'), auth=auth)
-        character = response.json()['character']
-        items = character['bag']
-        wearable_items = [
+    def search_wearable_item(self):
+        import random
+        wearable_item = None
+        dungeon_status = requests.get(url('dungeon'), auth=auth).json()
+        room_wearable_items = [
             item
-            for item in items
-            if item['type'] == 'defence'
-            and (
-                item['id'] != character['equipped_defece_item']['id']
-                if character['equipped_defence_item']
-                else None
-            )
-            and (
-                item['id'] != character['equipped_attack_item']['id']
-                if character['equipped_attack_item']
-                else None
-            )
+            for item in dungeon_status['room']['items']
+            if item['category'] != 'consumable'
         ]
-        if len(wearable_items) == 0:
-            self.skipTest('can\'t test, don\'t have other wearable items')
-        item = wearable_items[0]
-        response = requests.put(
-            url('dungeon/bag/{item}'.format(item=item['id'])),
+        while len(room_wearable_items) < 1:
+            gate_id = random.choice(dungeon_status['room']['gates'])['id']
+            requests.get(
+                url('dungeon/gate/{gate_id}'.format(gate_id=gate_id)),
+                auth=auth
+            )
+            dungeon_status = requests.get(url('dungeon'), auth=auth).json()
+            room_wearable_items = [
+                item
+                for item in dungeon_status['room']['items']
+                if item['category'] != 'consumable'
+            ]
+        self.fight_til_clear_or_die()
+        wearable_item = requests.post(
+                url('dungeon/item/{item}'.format(item=random.choice(room_wearable_items)['id'])),
+                auth=auth
+        ).json()['id']
+        return wearable_item
+
+    def test_equip_wearable_item(self):
+        self.test_start_dungeon()
+        wearable_item_id = self.search_wearable_item()
+        response = requests.post(
+            url('dungeon/bag/{item}'.format(item=wearable_item_id)),
             auth=auth
         )
         self.assertEqual(
             response.status_code,
             codes.ok
         )
-        updated_character = response.json()['character']
-        self.assertEqual(
-            updated_character[item['type'] + '_item'],
-            item
-        )
-        self.assertNotEqual(
-            updated_character[item['type'] + '_item'][id],
-            character[item['type'] + '_item'][id]
-            if character[item['type'] + '_item']
-            else None
+        dungeon_status = requests.get(url('dungeon'), auth=auth).json()
+        updated_character = dungeon_status['character']
+        wearable_item = [
+                item for item in updated_character['bag']
+                if item['id'] == wearable_item_id
+        ][0]
+        self.assertIn(
+            wearable_item['id'],
+            [
+                updated_character['equipped_defence_item'],
+                updated_character['equipped_attack_item']
+            ]
         )
 
         # TODO: test_search_item
