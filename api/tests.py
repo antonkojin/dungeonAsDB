@@ -571,6 +571,8 @@ class TestDungeonAsDB(unittest.TestCase):
             else None
         )
 
+        # TODO: test_search_item
+
         # TODO: test_cant_take_too_many_items
 
 
