@@ -25,10 +25,10 @@ if heroku:
     )
 else:
     init_db_script = dirname(realpath(__file__)) + (
-        '/../db/docker_init_db.sh'
-        'schema.sql'
-        'functions.sql'
-        'data.sql'
+        '/../db/docker_init_db.sh '
+        'schema.sql '
+        'functions.sql '
+        'data.sql '
     )
 
 
