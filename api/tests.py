@@ -476,6 +476,58 @@ class TestDungeonAsDB(unittest.TestCase):
             character['hit_points'] + item['hit_points']
         )
 
+    def test_drop_bonus_on_room_change(self):
+        self.test_start_dungeon()
+        before_bonus_character = requests.get(url('dungeon'), auth=auth).json()['character']
+        item_id = list(filter(
+            lambda i: i['category'] == 'consumable',
+            before_bonus_character['bag']
+        ))[0]['id']
+        requests.post(
+            url('dungeon/bag/{itemId}'.format(itemId=item_id)),
+            auth=auth
+        )
+        dungeon_status = requests.get(url('dungeon'), auth=auth).json()
+        after_bonus_character = dungeon_status['character']
+        gate_id = dungeon_status['room']['gates'][0]['id']
+        requests.get(
+            url('dungeon/gate/{gate_id}'.format(gate_id=gate_id)),
+            auth=auth
+        )
+        after_gate_character = requests.get(url('dungeon'), auth=auth).json()['character']
+        self.assertEqual(
+            after_gate_character['attack'],
+            before_bonus_character['attack']
+        )
+        self.assertNotEqual(
+            after_bonus_character['attack'],
+            before_bonus_character['attack']
+        )
+        self.assertEqual(
+                after_gate_character['defence'],
+                before_bonus_character['defence']
+        )
+        self.assertNotEqual(
+                after_bonus_character['defence'],
+                before_bonus_character['defence']
+        )
+        self.assertEqual(
+                after_gate_character['wisdom'],
+                before_bonus_character['wisdom']
+        )
+        self.assertNotEqual(
+                after_bonus_character['wisdom'],
+                before_bonus_character['wisdom']
+        )
+        self.assertEqual(
+                after_gate_character['hit_points'],
+                before_bonus_character['hit_points']
+        )
+        self.assertNotEqual(
+                after_bonus_character['hit_points'],
+                before_bonus_character['hit_points']
+        )
+
     @unittest.skip('')
     def test_equip_wearable_item(self):
         response = requests.get(url('dungeon'), auth=auth)
@@ -521,7 +573,6 @@ class TestDungeonAsDB(unittest.TestCase):
 
         # TODO: test_cant_take_too_many_items
 
-        # TODO: test_drop_bonus_on_room_change
 
 if __name__ == '__main__':
     from colour_runner.runner import ColourTextTestRunner

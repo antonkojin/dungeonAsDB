@@ -559,3 +559,18 @@ BEGIN
         WHERE dungeons."character" = character_id;
 END;
 $$ LANGUAGE 'plpgsql';
+
+CREATE OR REPLACE FUNCTION reset_bonuses() RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE dungeons SET
+        (room_attack_bonus, room_defence_bonus, room_wisdom_bonus, room_hit_points_bonus) = (0,0,0,0);
+    RETURN NEW;
+END;
+$$ LANGUAGE 'plpgsql';
+
+CREATE TRIGGER room_changed AFTER UPDATE
+    ON dungeons
+    FOR EACH ROW
+    WHEN (NEW.current_room IS DISTINCT FROM OLD.current_room)
+    EXECUTE PROCEDURE reset_bonuses();
+
