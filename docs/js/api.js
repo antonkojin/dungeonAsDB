@@ -27,7 +27,7 @@ var api = function() {
         if (logged == true) {
            callback();
         } else if (logged == null) {
-            setTimeout(ifLogged(callback), 100);
+            setTimeout(function() {ifLogged(callback), 100});
         }
     };
 
@@ -35,7 +35,7 @@ var api = function() {
         if (logged != null && logged == false) {
            callback();
         } else if (logged == null) {
-            setTimeout(ifNotLogged(callback), 100);
+            setTimeout(function() {ifNotLogged(callback), 100});
         }
     };
 
@@ -43,10 +43,9 @@ var api = function() {
         var localEmail = localStorage.getItem('email');
         var localPassword = localStorage.getItem('password');
         if (localEmail && localPassword) {
-            login(localEmail, localPassword, function(){}, function(){});
-            logged = true;
+            login(localEmail, localPassword, function(){ }, function(){ });
         } else {
-            logged = false;
+            logout();
         }
     };
 
@@ -65,8 +64,7 @@ var api = function() {
                     success();
                 },
                 401: function() {
-                    email = null;
-                    password = null;
+                    logout();
                     deny();
                 }
             }
