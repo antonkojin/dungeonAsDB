@@ -23,7 +23,7 @@ var loginForm = function() {
             });
         };
         deny = function() {
-            console.warn("undefined callback on login fail!!!");
+            window.alert('wrong credentials');
         };
         api.login(email, password, success, deny);
         event.preventDefault();
