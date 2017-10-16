@@ -43,6 +43,7 @@ var api = function() {
         var localEmail = localStorage.getItem('email');
         var localPassword = localStorage.getItem('password');
         if (localEmail && localPassword) {
+            login(localEmail, localPassword, function(){}, function(){});
             logged = true;
         } else {
             logged = false;
