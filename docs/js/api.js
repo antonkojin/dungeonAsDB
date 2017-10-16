@@ -1,6 +1,11 @@
 var api = function() {
-    var apiUrl = 'https://progetto-db.herokuapp.com';
-    // var apiUrl = 'http://localhost:8000';
+    var apiUrl = function() {
+        if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+            return 'http://localhost:8000';
+        } else {
+            return 'https://progetto-db.herokuapp.com';
+        }
+    }();
     var email = null;
     var nickname = null;
     var password = null;
