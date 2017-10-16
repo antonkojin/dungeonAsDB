@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <script type="text/javascript" src="js/jquery-3.2.1.js"></script>
+        <script type="text/javascript" src="js/api.js"></script>
+        <script type="text/javascript" src="js/redirect.js"></script>
+        <script type="text/javascript" src="js/character.js"></script>
+        <title>DungeonAsDB</title>
+    </head>
+    <body>
+        <div>
+            <button id="button-logout" type="button">logout</button>
+        </div>
+        <div>
+            <form id="create-character-form" method="POST" action="">
+                <div>
+                    <label for="strength-radios">
+                        Strength
+                    </label>
+                    <div id="strength-radios">
+                        <input type="radio" id="strength_1" autocomplete="off">
+                        <input type="radio" id="strength_2" autocomplete="off">
+                        <input type="radio" id="strength_3" autocomplete="off">
+                        <input type="radio" id="strength_4" autocomplete="off">
+                        <input type="radio" id="strength_5" autocomplete="off">
+                    </div>
+                </div>
+                <div>
+                    <label for="constitution-radios">
+                        Constitution
+                    </label>
+                    <div id="constitution-radios">
+                        <input type="radio" id="constitution_1" autocomplete="off">
+                        <input type="radio" id="constitution_2" autocomplete="off">
+                        <input type="radio" id="constitution_3" autocomplete="off">
+                        <input type="radio" id="constitution_4" autocomplete="off">
+                        <input type="radio" id="constitution_5" autocomplete="off">
+                    </div>
+                </div>
+                <div>
+                    <label for="dexterity-radios">
+                        Dexterity
+                    </label>
+                    <div id="dexterity-radios">
+                        <input type="radio" id="dexterity_1" autocomplete="off">
+                        <input type="radio" id="dexterity_2" autocomplete="off">
+                        <input type="radio" id="dexterity_3" autocomplete="off">
+                        <input type="radio" id="dexterity_4" autocomplete="off">
+                        <input type="radio" id="dexterity_5" autocomplete="off">
+                    </div>
+                </div>
+                <div>
+                    <label for="intellect-radios">
+                        intellect
+                    </label>
+                    <div id="intellect-radios">
+                        <input type="radio" id="intellect_1" autocomplete="off">
+                        <input type="radio" id="intellect_2" autocomplete="off">
+                        <input type="radio" id="intellect_3" autocomplete="off">
+                        <input type="radio" id="intellect_4" autocomplete="off">
+                        <input type="radio" id="intellect_5" autocomplete="off">
+                    </div>
+                </div>
+                <div>
+                    <button class="form-control" type="submit" id="button-create">
+                        Create!
+                    </button>
+                </div>
+            </form>
+        </div>
+    </body>

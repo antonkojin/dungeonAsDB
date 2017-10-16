@@ -3,10 +3,10 @@ var signup = function() {
         api.ifLogged(function() {
             redirect.redirect('dungeon');
         });
-        $("#signup-form").submit(submit_handler);
+        $("#signup-form").submit(submit_handler); //TODO: rename to camelCase
     };
 
-    var submit_handler = function(event) {
+    var submit_handler = function(event) { //TODO: rename to camelCase
         var form = $("#signup-form");
         api.post({
             url: 'user',
