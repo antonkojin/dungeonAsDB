@@ -1,10 +1,12 @@
 var index = function() {
     var init = function() {
-        api.ifLogged(function() {
-            redirect.redirect('dungeon');
-        });
         api.ifNotLogged(function() {
             redirect.redirect('login');
+        });
+        api.ifHasCharacter(function() {
+            redirect.redirect('dungeon');
+        }, function() {
+            redirect.redirect('character');
         });
     };
 
