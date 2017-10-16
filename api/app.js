@@ -37,6 +37,9 @@ const verifyAuth = function (req, res, next) {
     }
     const auth = basicAuth(req);
     winston.info(auth);
+    if (!auth) {
+        return res.status(401).set('WWW-Authenticate', 'Basic').send();
+    }
     checkPassword(auth.name, auth.pass)
         .then(verified => {
             if (!verified) {
