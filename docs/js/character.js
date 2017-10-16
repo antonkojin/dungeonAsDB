@@ -1,36 +1,42 @@
 var character = function() {
     var init = function() {
-        api.ifNotLogged(() => redirect.redirect('login'));
+        api.ifNotLogged(function(){
+            redirect.redirect('login');
+        });
+        api.ifHasCharacter(function() {
+            redirect.redirect('dungeon');
+        }, function() {
+            // do nothing
+        });
         getDices();
         $('#button-logout').click(logoutHandler);
         $('#button-create').submit(submitHandler);
     };
 
     var getDices = function() {
+        $('#create-character-form').children('div').each(function(i, formGroup) {
+            $(formGroup).children('div').each(function(i, radios) {
+                $(radios).children('input').each(function(i, radio) {
+                    console.log(radio)})})})
         api.get({
             url: 'dices',
-            statusCode: {
-                200: function(rolls) {
-                    $('#create-character-form')
-                        .find('div')
-                        .each(function(i, div) {
-                            div.find('div').each(function(i, radiosGroup) {
-                                radiosGroup.each(function(i, radio) {
-                                    radio.find('label').text(
-                                        rolls[i]['dice_1'] + 
-                                        rolls[i]['dice_2'] + 
-                                        rolls[i]['dice_3']
-                                    );
-                                    radio.find('radio').val(data[i]['id']);
-                                })
-                            });
+            success: function(rolls) {
+                $('#create-character-form')
+                    .children('div')
+                    .each(function(i, formGroup) {
+                        $(formGroup).children('div').each(function(i, radiosDiv) {
+                            $(radiosDiv).children('div').each(function(i, radioDiv){
+                                $(radioDiv).children('label').text(
+                                    rolls[i]['dice_1'] + 
+                                    rolls[i]['dice_2'] + 
+                                    rolls[i]['dice_3']
+                                );
+                                $(radioDiv).children('input').val(rolls[i]['id']);
+                            })
                         });
-                },
-                404: function() {
-                    redirect.redirect('dungeon');
+                    });
                 }
-            }
-        });
+            });
     };
 
     var submitHandler = function(event) {
