@@ -3,6 +3,11 @@ var dungeon = function() {
         api.ifNotLogged(function () {
             redirect.redirect('login');
         });
+        api.ifHasCharacter(function() {
+            // do nothing
+        }, function() {
+            redirect.redirect('character');
+        });
         $('#button-logout').click(logoutHandler);
     };
 

@@ -11,6 +11,18 @@ var api = function() {
     var password = null;
     var logged = null;
 
+    var ifHasCharacter = function(onYes, onNo) {
+        ifLogged(function() {
+            api.get({
+                url: 'dices',
+                statusCode: {
+                    200: onNo,
+                    404: onYes
+                }
+            });
+        });
+    };
+
     var ifLogged = function(callback) {
         if (logged == true) {
            callback();
@@ -101,7 +113,8 @@ var api = function() {
         get: get,
         post: post,
         ifLogged: ifLogged,
-        ifNotLogged: ifNotLogged
+        ifNotLogged: ifNotLogged,
+        ifHasCharacter: ifHasCharacter
     };
 }();
 

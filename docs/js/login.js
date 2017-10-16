@@ -1,7 +1,12 @@
 var loginForm = function() {
     var init = function() {
+        console.log(location);
         api.ifLogged(function() {
-            redirect.redirect('dungeon');
+            api.ifHasCharacter(function() {
+                redirect.redirect('dungeon');
+            }, function() {
+                redirect.redirect('character');
+            });
         });
         $("#login-form").submit(submit_handler);
     };
@@ -11,7 +16,11 @@ var loginForm = function() {
         var email = form.find('#mail').val();
         var password = form.find('#password').val();
         success = function() {
-           redirect.redirect('dungeon');
+            api.ifHasCharacter(function() {
+                redirect.redirect('dungeon');
+            }, function() {
+                redirect.redirect('character');
+            });
         };
         deny = function() {
             console.warn("undefined callback on login fail!!!");
