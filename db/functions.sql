@@ -580,6 +580,7 @@ BEGIN
 END;
 $$ LANGUAGE 'plpgsql';
 
+DROP TRIGGER IF EXISTS room_changed ON dungeons CASCADE;
 CREATE TRIGGER room_changed AFTER UPDATE
     ON dungeons
     FOR EACH ROW
