@@ -581,9 +581,74 @@ class TestDungeonAsDB(unittest.TestCase):
             ]
         )
 
-        # TODO: test_search_item
+    def test_cant_search_with_enemies(self):
+        self.test_start_dungeon()
+        dungeon_status = requests.get(url('dungeon'), auth=auth).json()
+        enemies = dungeon_status['room']['enemies']
+        while len(enemies) == 0:
+            import random
+            gate_id = random.choice(dungeon_status['room']['gates']['id'])
+            requests.get(
+                url('dungeon/gate/{gate_id}'.format(gate_id=gate_id)),
+                auth=auth
+            )
+            dungeon_status = requests.get(url('dungeon'), auth=auth).json()
+            enemies = dungeon_status['room']['enemies']
+        response = requests.get(url('dungeon/search'), auth=auth)
+        self.assertEqual(response.status_code, codes.I_AM_A_TEAPOT)
 
-        # TODO: test_cant_take_too_many_items
+    def test_search_item(self):
+        found_gate, found_item = False, False
+        self.test_start_dungeon()
+        if not self.fight_til_clear_or_die():
+            self.skipTest('died while clearing room from enemies')
+        old_dungeon_status = requests.get(url('dungeon'), auth=auth).json()
+        can_search = old_dungeon_status['character']['hit_points'] > 1
+        while can_search and not (found_gate and found_item):
+            old_dungeon_status = requests.get(url('dungeon'), auth=auth).json()
+            old_room_items = old_dungeon_status['room']['items']
+            old_gates = old_dungeon_status['room']['gates']
+            response = requests.get(url('dungeon/search'), auth=auth)
+            if response.status_code == 418:
+                self.assertTrue(
+                    response.json()['roll'] >= old_dungeon_status['character']['wisdom']
+                )
+            self.assertIn(
+                response.json()['roll'],
+                range(1, 21)
+            )
+            type_found = response.json()['type']
+            found_item = found_item or type_found == 'item'
+            found_gate = found_gate or type_found == 'gate'
+            dungeon_status = requests.get(url('dungeon'), auth=auth).json()
+            if type_found:
+                id_found = response.json()['id']
+            if type_found == 'item':
+                room_items = dungeon_status['room']['items']
+                self.assertEqual(
+                    len([i for i in old_room_items if i['id'] == id_found]),
+                    0
+                )
+                self.assertEqual(
+                    len([i for i in room_items if i['id'] == id_found]),
+                    1
+                )
+            elif type_found == 'gate':
+                gates = dungeon_status['room']['gates']
+                self.assertEqual(
+                    len([g for g in gates if g['id'] == id_found]),
+                    1
+                )
+            can_search = dungeon_status['character']['hit_points'] > 1
+        if not found_gate or not found_item:
+            self.skipTest(
+                'cannot find at least one {}'.format(
+                    'gate' if found_item else 'item'
+                )
+            )
+
+
+    # TODO: test_cant_take_too_many_items
 
 
 if __name__ == '__main__':

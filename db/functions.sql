@@ -117,7 +117,7 @@ CREATE FUNCTION create_room(
     dungeon INTEGER
 ) RETURNS INTEGER AS $$
     DECLARE
-        max_items CONSTANT SMALLINT := 5;
+        max_items CONSTANT SMALLINT := 10;
         max_enemies CONSTANT SMALLINT := 2;
         min_enemies CONSTANT SMALLINT := 1;
         room_id INTEGER;
@@ -133,7 +133,7 @@ CREATE FUNCTION create_room(
         INSERT INTO room_items (room, hidden, item)
         SELECT
             room_id,
-            random() > 0.5, 
+            random() > 0.2, 
             id
         FROM items ORDER BY random() 
         LIMIT floor(random() * (max_items + 1));
@@ -587,3 +587,70 @@ CREATE TRIGGER room_changed AFTER UPDATE
     WHEN (NEW.current_room IS DISTINCT FROM OLD.current_room)
     EXECUTE PROCEDURE reset_bonuses();
 
+CREATE OR REPLACE FUNCTION room_search(user_email VARCHAR(254)) RETURNS TABLE(
+    type VARCHAR,
+    id INTEGER,
+    roll INTEGER
+) AS $$
+DECLARE
+    character_id INTEGER;
+    wisdom INTEGER;
+    roll INTEGER;
+BEGIN
+    SELECT C.id FROM characters AS C WHERE "user" = user_email INTO character_id;
+    IF (EXISTS (SELECT room_enemies.enemy FROM room_enemies JOIN dungeons
+        ON room_enemies.room = dungeons.current_room
+        WHERE dungeons."character" = character_id)
+    ) THEN
+        RAISE 'cant search, enemies left';
+    END IF;
+    IF (SELECT (D.current_bonusless_hp + room_hit_points_bonus) < 1 FROM dungeons AS D WHERE D."character" = character_id
+    ) THEN
+        RAISE 'cant search, or die';
+    END IF;
+    IF (SELECT (D.room_hit_points_bonus > 0) FROM dungeons AS D
+        WHERE D."character" = character_id
+    ) THEN
+        UPDATE dungeons SET room_hit_points_bonus = room_hit_points_bonus - 1 WHERE dungeons."character" = character_id;
+    ELSE
+        UPDATE dungeons SET current_bonusless_hp = current_bonusless_hp - 1 WHERE dungeons."character" = character_id;
+    END IF;
+    SELECT C.intellect + D.room_wisdom_bonus
+        FROM characters AS C JOIN dungeons AS D
+        ON C.id = D."character"
+        WHERE C."user" = user_email
+        INTO wisdom;
+    SELECT CEIL(RANDOM() * 20) INTO roll; 
+    IF (roll < wisdom) THEN
+        WITH hiddens AS (
+            (
+                SELECT 'item' AS type, RI.id FROM room_items AS RI
+                WHERE RI.room = (
+                    SELECT D.current_room FROM dungeons AS D
+                    WHERE D."character" = character_id
+                ) AND
+                RI.hidden = TRUE
+            ) UNION (
+                SELECT 'gate' AS type, G.id FROM gates AS G
+                WHERE G.room_from = (
+                    SELECT D.current_room FROM dungeons AS D
+                    WHERE D."character" = character_id
+                ) OR
+                G.room_to = (
+                    SELECT D.current_room FROM dungeons AS D
+                    WHERE D."character" = character_id
+                ) AND
+                G.hidden = TRUE
+            )
+        ) SELECT H.type, H.id FROM hiddens AS H
+            OFFSET RANDOM() * (SELECT COUNT(*) FROM hiddens) LIMIT 1
+            INTO type, id;
+        IF (type = 'item') THEN
+            UPDATE room_items SET hidden = FALSE WHERE room_items.id = room_search.id;
+        ELSE
+            UPDATE gates SET hidden = FALSE WHERE gates.id = room_search.id;
+        END IF;
+    END IF;
+    RETURN QUERY SELECT type, id, roll;
+END;
+$$ LANGUAGE 'plpgsql';

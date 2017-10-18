@@ -233,4 +233,20 @@ app.post('/dungeon/bag/:itemId', (req, res) => {
         });
 });
 
+app.get('/dungeon/search', (req, res) => {
+    db.func('room_search', req.auth.user)
+        .then(([data]) => {
+            winston.info(`search: ${util.inspect(data)}`);
+            res.json(data);
+        })
+        .catch(error => {
+            if (error.code === 'P0001') {
+                res.sendStatus(418) // I'm a teapot HTTP response code
+            } else {
+                winston.error(util.inspect(error));
+                res.sendStatus(500);
+            }
+        });
+});
+
 app.listen(process.env.PORT)
