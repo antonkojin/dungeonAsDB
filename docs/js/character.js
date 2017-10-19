@@ -11,6 +11,7 @@ var character = function() {
         getDices();
         $('#button-logout').click(logoutHandler);
         $('#create-character-form').submit(submitHandler);
+        $('#button-delete-user').click(deleteUserHandler);
     };
 
     var getDices = function() {
@@ -63,7 +64,7 @@ var character = function() {
                 data: data,
                 statusCode: {
                     201: function() {
-                       redirect.redirect('dungeon');
+                       redirect.redirect('dashboard');
                     },
                     409: function() {
                        console.error('no conflict handler');
@@ -72,6 +73,14 @@ var character = function() {
             });
         }
         event.preventDefault();
+    };
+
+    var deleteUserHandler = function() {
+        api.del({
+            url: 'user'
+        });
+        api.logout();
+        redirect.redirect('signup');
     };
 
     var logoutHandler = function() {
