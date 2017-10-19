@@ -10,17 +10,16 @@ var character = function() {
         });
         getDices();
         $('#button-logout').click(logoutHandler);
-        $('#button-create').submit(submitHandler);
+        $('#create-character-form').submit(submitHandler);
     };
 
     var getDices = function() {
-        $('#create-character-form').children('div').each(function(i, formGroup) {
-            $(formGroup).children('div').each(function(i, radios) {
-                $(radios).children('input').each(function(i, radio) {
-                    console.log(radio)})})})
         api.get({
             url: 'dices',
             success: function(rolls) {
+                rolls.sort((a, b) => {
+                    return b.dice_1 + b.dice_2 + b.dice_3 - a.dice_1 - a.dice_2 - a.dice_3;
+                });
                 $('#create-character-form')
                     .children('div')
                     .each(function(i, formGroup) {
@@ -41,25 +40,37 @@ var character = function() {
 
     var submitHandler = function(event) {
         var form = $("#create-character-form");
-        api.post({
-            url: 'character',
-            data: {
-                name: form.find('#name').val(),
-                description: form.find('#description').val(),
-                strength: form.find('#strength').val(),
-                intellect: form.find('#intellect').val(),
-                dexterity: form.find('#dexterity').val(),
-                constitution: form.find('#constitution').val(),
-            },
-            statusCode: {
-                201: function() {
-                   redirect.redirect('dungeon');
-                },
-                409: function() {
-                   console.error('no conflict handler');
-                }
+        var data = {
+            name: form.find('#name').val(),
+            description: form.find('#description').val(),
+            strength: form.find('input[name=strength]:checked').val(),
+            intellect: form.find('input[name=intellect]:checked').val(),
+            dexterity: form.find('input[name=dexterity]:checked').val(),
+            constitution: form.find('input[name=constitution]:checked').val(),
+        };
+        var invalid = function f ([head, ...tail]) {
+            if (!tail.length) {
+                return false;
+            } else {
+                return tail.indexOf(head) >= 0 || f(tail);
             }
-        });
+        }([data.strength, data.constitution, data.dexterity, data.intellect]);
+        if (invalid) {
+            window.alert('you can\'t choice the same roll for two characteristics');
+        } else {
+            api.post({
+                url: 'character',
+                data: data,
+                statusCode: {
+                    201: function() {
+                       redirect.redirect('dungeon');
+                    },
+                    409: function() {
+                       console.error('no conflict handler');
+                    }
+                }
+            });
+        }
         event.preventDefault();
     };
 
