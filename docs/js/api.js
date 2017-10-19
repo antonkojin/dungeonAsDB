@@ -95,6 +95,11 @@ var api = function() {
         ajax(options);
     };
 
+    var del = function(options) {
+        options.method = 'DELETE';
+        ajax(options);
+    };
+
     var logout = function() {
         localStorage.removeItem('email');
         localStorage.removeItem('password');
@@ -111,6 +116,7 @@ var api = function() {
         nickname: function() { return nickname; },
         get: get,
         post: post,
+        del: del,
         ifLogged: ifLogged,
         ifNotLogged: ifNotLogged,
         ifHasCharacter: ifHasCharacter
