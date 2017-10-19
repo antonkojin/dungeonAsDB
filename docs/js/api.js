@@ -11,6 +11,18 @@ var api = function() {
     var password = null;
     var logged = null;
 
+    var ifHasDungeon = function(onYes, onNo) {
+        ifLogged(function() {
+            api.get({
+                url: 'dungeon',
+                statusCode: {
+                    200: onYes,
+                    404: onNo
+                }
+            });
+        });
+    };
+
     var ifHasCharacter = function(onYes, onNo) {
         ifLogged(function() {
             api.get({
@@ -119,7 +131,8 @@ var api = function() {
         del: del,
         ifLogged: ifLogged,
         ifNotLogged: ifNotLogged,
-        ifHasCharacter: ifHasCharacter
+        ifHasCharacter: ifHasCharacter,
+        ifHasDungeon: ifHasDungeon
     };
 }();
 
