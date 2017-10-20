@@ -166,6 +166,7 @@ app.get('/dungeon', (req, res) => {
         ]);
     })
         .then(data => {
+            winston.info(util.inspect(data));
             const dungeonStatus = {};
             dungeonStatus.character = data[0];
             dungeonStatus.character.bag = data[1];
@@ -177,6 +178,7 @@ app.get('/dungeon', (req, res) => {
         })
         .catch(error => {
             winston.error(util.inspect(error));
+            res.sendStatus(404);
         });
 });
 

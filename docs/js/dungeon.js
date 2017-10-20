@@ -8,6 +8,11 @@ var dungeon = function() {
         }, function() {
             redirect.redirect('character');
         });
+        api.ifHasDungeon(function() {
+            // do nothing
+        }, function(){
+            redirect.redirect('dashboard');
+        });
         $('#button-logout').click(logoutHandler);
         $('#button-end-dungeon').click(endDungeonHandler);
         $('#button-delete-user').click(deleteUserHandler);

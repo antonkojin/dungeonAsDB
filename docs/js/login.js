@@ -17,7 +17,7 @@ var loginForm = function() {
         var password = form.find('#password').val();
         success = function() {
             api.ifHasCharacter(function() {
-                redirect.redirect('dungeon');
+                redirect.redirect('dashboard');
             }, function() {
                 redirect.redirect('character');
             });

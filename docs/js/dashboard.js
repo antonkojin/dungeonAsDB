@@ -29,7 +29,7 @@ var dashboard = function() {
     var startDungeonHandler = function() {
         api.post({
             url: 'dungeon'
-        });
+        }); // TODO: add error handler
         redirect.redirect('dungeon');
     };
 
