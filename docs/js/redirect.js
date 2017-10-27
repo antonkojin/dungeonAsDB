@@ -1,6 +1,6 @@
 var redirect = function() {
     var redirect = function(url) {
-        window.location.replace(url);
+        window.location.replace(url + 'html');
     };
 
     return {

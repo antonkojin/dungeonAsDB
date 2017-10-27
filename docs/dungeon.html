@@ -9,21 +9,21 @@
         <title>DungeonAsDB</title>
     </head>
     <body>
-        <div id="room">
+        <div id="room" class="container">
             <div id="room-description">
                 Room description
             </div>
-            <div id="room-gates">
+            <div id="room-gates" class="container">
                 <h4>Gates</h4>
             </div>
-            <div id="room-enemies">
+            <div id="room-enemies" class="container">
                 <h4>Enemies</h4>
             </div>
-            <div id="room-items">
+            <div id="room-items" class="container">
                 <h4>Items</h4>
             </div>
         </div>
-        <div id="character">
+        <div id="character" class="container">
             <h4>Character</h4>
             <label for='character-name'>
                 name:
@@ -60,6 +60,30 @@
             </label>
             <div id="character-hit-points">
                 hp
+            </div>
+            <label for='character-room-attack-bonus'>
+                +attack:
+            </label>
+            <div id="character-room-attack-bonus">
+                att-bonus
+            </div>
+            <label for='character-room-defence-bonus'>
+                +defence:
+            </label>
+            <div id="character-room-defence-bonus">
+                def-bonus
+            </div>
+            <label for='character-room-wisdom-bonus'>
+                +wisdom:
+            </label>
+            <div id="character-room-wisdom-bonus">
+                wisd-bonus
+            </div>
+            <label for='character-room-hit-points-bonus'>
+                +hp:
+            </label>
+            <div id="character-room-hit-points-bonus">
+                hp-bonus
             </div>
             <label for='character-equipped-attack-item'>
                 attack item:
@@ -155,33 +179,7 @@
                     category
                 </div>
             </div>
-            <div id="character-room-bonuses">
-                <label for='character-room-attack-bonus'>
-                    +attack:
-                </label>
-                <div id="character-room-attack-bonus">
-                    att-bonus
-                </div>
-                <label for='character-room-defence-bonus'>
-                    +defence:
-                </label>
-                <div id="character-room-defence-bonus">
-                    def-bonus
-                </div>
-                <label for='character-room-wisdom-bonus'>
-                    +wisdom:
-                </label>
-                <div id="character-room-wisdom-bonus">
-                    wisd-bonus
-                </div>
-                <label for='character-room-hit-points-bonus'>
-                    +hp:
-                </label>
-                <div id="character-room-hit-points-bonus">
-                    hp-bonus
-                </div>
-            </div>
-            <div id="character-bag">
+            <div id="character-bag" class="container">
                 <h4>Bag</h4>
             </div>
         </div>
@@ -288,11 +286,21 @@
         </div>
     </body>
     <style>
-        div {
+        /*div {
             border: solid 1px black;
             margin: 3px;
+        }*/
+        .container {
+            border: solid 1px black;
+            margin: 2px;
+            padding: 2px;
         }
-        .gate > div, .item > div, .enemy > div {
+        #character, .gate, .item, .enemy {
+            display: block;
+            border: solid 1px black;
+            margin: 2px;
+        }
+        #character > div, .gate > div, .item > div, .enemy > div {
             display: inline-block;
             border: none;
             padding: 3px;

@@ -88,7 +88,7 @@ var dungeon = function() {
                 htmlEnemy.children('.enemy-hit-points')
                     .text(jsonEnemy.hit_points);
                 htmlEnemy.children('.enemy-damage')
-                    .text(jsonEnemy.category);
+                    .text(jsonEnemy.damage);
                 return htmlEnemy;
             })
             .forEach(htmlEnemy => {
@@ -107,7 +107,7 @@ var dungeon = function() {
                     .text(jsonItem.defence);
                 htmlItem.children('.item-hit-points')
                     .text(jsonItem.hit_points);
-                htmlItem.children('.item-damage')
+                htmlItem.children('.item-category')
                     .text(jsonItem.category);
                 return htmlItem;
             })
