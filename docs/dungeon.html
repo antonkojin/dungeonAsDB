@@ -184,17 +184,17 @@
             </div>
         </div>
         <div class="controls">
-            <button>Attack</button>
-            <button>Search</button>
-            <button>Run away</button>
-            <button>Follow gate</button>
+            <button id="button-attack">Attack</button>
+            <button id="button-search">Search</button>
+            <button id="button-run">Run away</button>
+            <button id="button-follow-gate">Follow gate</button>
         </div>
         <div class="global-controls">
             <button id="button-end-dungeon">Termina dungeon</button>
             <button id="button-logout">Logout</button>
             <button id="button-delete-user">Delete user</button>
         </div>
-        <div id="templates">
+        <div id="templates" hidden>
             <div class="item">
                 <label>
                     name:
@@ -284,6 +284,21 @@
                 <div class="room-id"></div>
             </div>
         </div>
+        <dialog id="fight-dialog">
+            <form method="dialog">
+                <select id="enemy-to-fight">
+                    <option></option>
+                </select>
+                <menu>
+                    <button id="button-fight-cancel">
+                        Cancel
+                    </button>
+                    <button id="button-fight-submit" type="submit">
+                        Confirm
+                    </button>
+                </menu>
+            </form>
+        </dialog>
     </body>
     <style>
         /*div {

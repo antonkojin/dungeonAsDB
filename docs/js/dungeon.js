@@ -15,10 +15,84 @@ var dungeon = function() {
         }, function(){
             redirect.redirect('dashboard');
         });
+        getDungeonStatus().then(dungeonStatus => {
+            appendDungeonStatus(dungeonStatus);
+        });
         $('#button-logout').click(logoutHandler);
         $('#button-end-dungeon').click(endDungeonHandler);
         $('#button-delete-user').click(deleteUserHandler);
-        getDungeonStatus();
+        $('#button-attack').click(attackEnemyHandler);
+        $('#button-search').click(searchHandler);
+        $('#button-run').click(runHandler);
+        $('#button-follow').click(followGateHandler);
+    };
+    
+    var attackEnemyHandler = function (event) {
+        const option = $('#fight-dialog')
+            .children('form')
+            .children('select#enemy-to-fight')
+            .children('option')
+            .remove()
+            .clone();
+        dungeonStatus.room.enemies.map(jsonEnemy => {
+            return option.clone()
+                .val(jsonEnemy.id)
+                .text(jsonEnemy.name);
+        }).forEach(htmlEnemy => {
+            htmlEnemy.appendTo('#enemy-to-fight');
+        });
+        $('#fight-dialog').show();
+        $('#fight-dialog #button-fight-cancel').click(() =>{
+            $('#fight-dialog').hide();
+        });
+        $('#fight-dialog #button-fight-submit').click(() =>{
+            const enemyToFight = $('#fight-dialog #enemy-to-fight').val();
+            $('#fight-dialog').hide();
+            api.post({
+                url: `dungeon/enemy/${enemyToFight}`,
+                success: fights => {
+                    console.log(fights);
+                    window.alert(fights.map(fight => {
+                        return `
+                            type: ${fight.type}
+                            hit: ${fight.hit}
+                            value: ${fight.value}
+                            dice: ${fight.dice}
+                            id: ${fight.id}
+                            damage: ${fight.damage}
+                        `;
+                    }));
+                    getDungeonStatus().then(dungeonStatus => {
+                        updateEnemies(dungeonStatus)
+                    });
+                }
+            });
+        });
+        event.preventDefault();
+    };
+    
+    var updateEnemies = function (dungeonStatus) {
+        const enemyTemplate = $('#templates').children('.enemy')
+            .clone();
+        $('#room-enemies > .enemy').remove();
+        dungeonStatus.room.enemies.map(jsonEnemy => {
+            const htmlEnemy = enemyTemplate.clone();
+            htmlEnemy.children('.enemy-name')
+                .text(jsonEnemy.name);
+            htmlEnemy.children('.enemy-description')
+                .text(jsonEnemy.description);
+            htmlEnemy.children('.enemy-attack')
+                .text(jsonEnemy.attack);
+            htmlEnemy.children('.enemy-defence')
+                .text(jsonEnemy.defence);
+            htmlEnemy.children('.enemy-hit-points')
+                .text(jsonEnemy.hit_points);
+            htmlEnemy.children('.enemy-damage')
+                .text(jsonEnemy.damage);
+            return htmlEnemy;
+        }).forEach(htmlEnemy => {
+            htmlEnemy.appendTo('#room-enemies');
+        });
     };
 
     var deleteUserHandler = function() {
@@ -42,24 +116,20 @@ var dungeon = function() {
     };
 
     var getDungeonStatus = function() {
-        api.get({
+        return api.get({
             url: 'dungeon',
             success: (data => {
                 dungeonStatus = data;
-                appendDungeonStatus(data);
             })
         });
     };
 
     var appendDungeonStatus = function(dungeonStatus) {
         const gateTemplate = $('#templates').children('.gate')
-            .remove()
             .clone();
         const enemyTemplate = $('#templates').children('.enemy')
-            .remove()
             .clone();
         const itemTemplate = $('#templates').children('.item')
-            .remove()
             .clone();
         $('#room-description').text(dungeonStatus.room.description);
         dungeonStatus.room.gates
