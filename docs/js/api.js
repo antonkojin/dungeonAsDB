@@ -94,22 +94,22 @@ var api = function() {
             }
         };
         console.info('ajax options: %o', options);
-        $.ajax(options);
+        return $.ajax(options);
     };
 
     var get = function(options) {
         options.method = 'GET';
-        ajax(options);
+        return ajax(options);
     };
 
     var post = function(options) {
         options.method = 'POST';
-        ajax(options);
+        return ajax(options);
     };
 
     var del = function(options) {
         options.method = 'DELETE';
-        ajax(options);
+        return ajax(options);
     };
 
     var logout = function() {
