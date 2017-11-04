@@ -28,9 +28,9 @@ var dungeon = function() {
     };
     
     var attackEnemyHandler = function (event) {
-        const option = $('#fight-dialog')
+        const option = $('#options-dialog')
             .children('form')
-            .children('select#enemy-to-fight')
+            .children('select')
             .children('option')
             .remove()
             .clone();
@@ -39,15 +39,15 @@ var dungeon = function() {
                 .val(jsonEnemy.id)
                 .text(jsonEnemy.name);
         }).forEach(htmlEnemy => {
-            htmlEnemy.appendTo('#enemy-to-fight');
+            htmlEnemy.appendTo('#options-dialog select');
         });
-        $('#fight-dialog').show();
-        $('#fight-dialog #button-fight-cancel').click(() =>{
-            $('#fight-dialog').hide();
+        $('#options-dialog').show();
+        $('#options-dialog #button-dialog-cancel').click(() =>{
+            $('#options-dialog').hide();
         });
-        $('#fight-dialog #button-fight-submit').click(() =>{
-            const enemyToFight = $('#fight-dialog #enemy-to-fight').val();
-            $('#fight-dialog').hide();
+        $('#options-dialog #button-dialog-submit').click(() =>{
+            const enemyToFight = $('#options-dialog select').val();
+            $('#options-dialog').hide();
             api.post({
                 url: `dungeon/enemy/${enemyToFight}`,
                 success: fights => {
