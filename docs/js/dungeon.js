@@ -93,6 +93,12 @@ var dungeon = function() {
         }).forEach(htmlEnemy => {
             htmlEnemy.appendTo('#room-enemies');
         });
+        if (dungeonStatus.room.enemies.length == 0) {
+            $('#button-attack').hide();
+            $('#button-search').show();
+            $('#button-run').hide();
+            $('#button-follow-gate').show();
+        }
     };
 
     var deleteUserHandler = function() {
