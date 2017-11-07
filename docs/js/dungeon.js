@@ -22,9 +22,52 @@ var dungeon = function() {
         $('#button-end-dungeon').click(endDungeonHandler);
         $('#button-delete-user').click(deleteUserHandler);
         $('#button-attack').click(attackEnemyHandler);
-        $('#button-search').click(searchHandler);
+        // $('#button-search').click(searchHandler);
         $('#button-run').click(runHandler);
-        $('#button-follow').click(followGateHandler);
+        // $('#button-follow').click(followGateHandler);
+    };
+    var runHandler = function (event) {
+        const option = $('#options-dialog')
+            .children('form')
+            .children('select')
+            .children('option')
+            .remove()
+            .clone();
+        dungeonStatus.room.gates.map(jsonGate => {
+            return option.clone()
+                .val(jsonGate.id)
+                .text(`gate: ${jsonGate.id}, room: ${jsonGate.room}`);
+        }).forEach(htmlGate => {
+            htmlGate.appendTo('#options-dialog select');
+        });
+        $('#options-dialog').show();
+        $('#options-dialog #button-dialog-cancel').click(() =>{
+            $('#options-dialog').hide();
+        });
+        $('#options-dialog #button-dialog-submit').click(() =>{
+            const gateToRunTo = $('#options-dialog select').val();
+            $('#options-dialog').hide();
+            api.post({
+                url: `dungeon/gate/${gateToRunTo}`,
+                success: fights => {
+                    console.log(fights);
+                    window.alert(fights.map(fight => {
+                        return `
+                            type: ${fight.type}
+                            hit: ${fight.hit}
+                            value: ${fight.value}
+                            dice: ${fight.dice}
+                            id: ${fight.id}
+                            damage: ${fight.damage}
+                        `;
+                    }));
+                    getDungeonStatus().then(dungeonStatus => {
+                        appendDungeonStatus(dungeonStatus);
+                    });
+                }
+            });
+        });
+        event.preventDefault();
     };
     
     var attackEnemyHandler = function (event) {
