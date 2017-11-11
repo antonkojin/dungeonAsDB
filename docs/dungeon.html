@@ -13,6 +13,9 @@
             <div id="room-description">
                 Room description
             </div>
+            <div id="room-id">
+                Room id
+            </div>
             <div id="room-gates" class="container">
                 <h4>Gates</h4>
             </div>
@@ -90,6 +93,12 @@
             </label>
             <div id="character-equipped-attack-item" class="item">
                 <label>
+                    id:
+                </label>
+                <div class="item-id">
+                    id
+                </div>
+                <label>
                     name:
                 </label>
                 <div class="item-name">
@@ -136,6 +145,12 @@
                 defence item:
             </label>
             <div id="character-equipped-defence-item" class="item">
+                <label>
+                    id:
+                </label>
+                <div class="item-id">
+                    id
+                </div>
                 <label>
                     name:
                 </label>
@@ -197,6 +212,12 @@
         <div id="templates" hidden>
             <div class="item">
                 <label>
+                    id:
+                </label>
+                <div class="item-id">
+                    id
+                </div>
+                <label>
                     name:
                 </label>
                 <div class="item-name">
@@ -240,6 +261,12 @@
                 </div>
             </div>
             <div class="enemy">
+                <label>
+                    id:
+                </label>
+                <div class="enemy-id">
+                    id
+                </div>
                 <label>
                     name:
                 </label>
@@ -285,15 +312,15 @@
             </div>
         </div>
         <dialog id="options-dialog">
-            <form method="dialog">
-                <select>
+            <form>
+                <select required>
                     <option></option>
                 </select>
                 <menu>
                     <button id="button-dialog-cancel">
                         Cancel
                     </button>
-                    <button id="button-dialog-submit" type="submit">
+                    <button id="button-dialog-submit">
                         Confirm
                     </button>
                 </menu>

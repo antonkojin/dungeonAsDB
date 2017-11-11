@@ -32,6 +32,7 @@ var dungeon = function() {
             .children('select')
             .children('option')
             .remove()
+            .first()
             .clone();
         dungeonStatus.room.gates.map(jsonGate => {
             return option.clone()
@@ -44,28 +45,18 @@ var dungeon = function() {
         $('#options-dialog #button-dialog-cancel').click(() =>{
             $('#options-dialog').hide();
         });
-        $('#options-dialog #button-dialog-submit').click(() =>{
+        $('#options-dialog #button-dialog-submit').click(e =>{
             const gateToRunTo = $('#options-dialog select').val();
             $('#options-dialog').hide();
-            api.post({
+            api.get({
                 url: `dungeon/gate/${gateToRunTo}`,
-                success: fights => {
-                    console.log(fights);
-                    window.alert(fights.map(fight => {
-                        return `
-                            type: ${fight.type}
-                            hit: ${fight.hit}
-                            value: ${fight.value}
-                            dice: ${fight.dice}
-                            id: ${fight.id}
-                            damage: ${fight.damage}
-                        `;
-                    }));
+                success: () => {
                     getDungeonStatus().then(dungeonStatus => {
                         appendDungeonStatus(dungeonStatus);
                     });
                 }
             });
+            e.preventDefault();
         });
         event.preventDefault();
     };
@@ -76,6 +67,7 @@ var dungeon = function() {
             .children('select')
             .children('option')
             .remove()
+            .first()
             .clone();
         dungeonStatus.room.enemies.map(jsonEnemy => {
             return option.clone()
@@ -88,7 +80,7 @@ var dungeon = function() {
         $('#options-dialog #button-dialog-cancel').click(() =>{
             $('#options-dialog').hide();
         });
-        $('#options-dialog #button-dialog-submit').click(() =>{
+        $('#options-dialog #button-dialog-submit').click(e =>{
             const enemyToFight = $('#options-dialog select').val();
             $('#options-dialog').hide();
             api.post({
@@ -110,6 +102,7 @@ var dungeon = function() {
                     });
                 }
             });
+            e.preventDefault();
         });
         event.preventDefault();
     };
@@ -120,6 +113,8 @@ var dungeon = function() {
         $('#room-enemies > .enemy').remove();
         dungeonStatus.room.enemies.map(jsonEnemy => {
             const htmlEnemy = enemyTemplate.clone();
+            htmlEnemy.children('.enemy-id')
+                .text(jsonEnemy.id);
             htmlEnemy.children('.enemy-name')
                 .text(jsonEnemy.name);
             htmlEnemy.children('.enemy-description')
@@ -176,11 +171,11 @@ var dungeon = function() {
     var appendDungeonStatus = function(dungeonStatus) {
         const gateTemplate = $('#templates').children('.gate')
             .clone();
-        const enemyTemplate = $('#templates').children('.enemy')
-            .clone();
         const itemTemplate = $('#templates').children('.item')
             .clone();
+        $('#room-id').text(dungeonStatus.room.id);
         $('#room-description').text(dungeonStatus.room.description);
+        $('#room-gates > .gate').remove();
         dungeonStatus.room.gates
             .map(jsonGate => {
                 const htmlGate = gateTemplate.clone();
@@ -193,29 +188,13 @@ var dungeon = function() {
             .forEach(htmlGate => {
                 htmlGate.appendTo('#room-gates');
             });
-        dungeonStatus.room.enemies
-            .map(jsonEnemy => {
-                const htmlEnemy = enemyTemplate.clone();
-                htmlEnemy.children('.enemy-name')
-                    .text(jsonEnemy.name);
-                htmlEnemy.children('.enemy-description')
-                    .text(jsonEnemy.description);
-                htmlEnemy.children('.enemy-attack')
-                    .text(jsonEnemy.attack);
-                htmlEnemy.children('.enemy-defence')
-                    .text(jsonEnemy.defence);
-                htmlEnemy.children('.enemy-hit-points')
-                    .text(jsonEnemy.hit_points);
-                htmlEnemy.children('.enemy-damage')
-                    .text(jsonEnemy.damage);
-                return htmlEnemy;
-            })
-            .forEach(htmlEnemy => {
-                htmlEnemy.appendTo('#room-enemies');
-            });
+        updateEnemies(dungeonStatus);
+        $('#room-items > .item').remove();
         dungeonStatus.room.items
             .map(jsonItem => {
                 const htmlItem = itemTemplate.clone();
+                htmlItem.children('.item-id')
+                    .text(jsonItem.id);
                 htmlItem.children('.item-name')
                     .text(jsonItem.name);
                 htmlItem.children('.item-description')
@@ -249,6 +228,8 @@ var dungeon = function() {
         const equippedAttackItem = dungeonStatus.character.bag.find(i => {
             return i.id === dungeonStatus.character.equipped_attack_item
         });
+        htmlEquippedAttackItem.children('.item-id')
+            .text(equippedAttackItem.id);
         htmlEquippedAttackItem.children('.item-name')
             .text(equippedAttackItem.name);
         htmlEquippedAttackItem.children('.item-description')
@@ -267,6 +248,8 @@ var dungeon = function() {
         const equippedDefenceItem = dungeonStatus.character.bag.find(i => {
             return i.id === dungeonStatus.character.equipped_defence_item
         });
+        htmlEquippedDefenceItem.children('.item-id')
+            .text(equippedDefenceItem.id);
         htmlEquippedDefenceItem.children('.item-name')
             .text(equippedDefenceItem.name);
         htmlEquippedDefenceItem.children('.item-description')
@@ -289,9 +272,11 @@ var dungeon = function() {
             .text(dungeonStatus.character.room_wisdom_bonus);
         $('#character-room-hit-points-bonus')
             .text(dungeonStatus.character.room_hit_points_bonus);
+        $('#character-bag > .item').remove();
         dungeonStatus.character.bag
             .map(jsonItem => {
                 const htmlItem = itemTemplate.clone();
+                htmlItem.children('.item-id').text(jsonItem.id);
                 htmlItem.children('.item-name').text(jsonItem.name);
                 htmlItem.children('.item-description').text(jsonItem.description);
                 htmlItem.children('.item-attack').text(jsonItem.attack);
