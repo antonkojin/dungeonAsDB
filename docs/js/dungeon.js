@@ -23,8 +23,8 @@ var dungeon = function() {
         $('#button-delete-user').click(deleteUserHandler);
         $('#button-attack').click(attackEnemyHandler);
         $('#button-search').click(searchHandler);
-        $('#button-run').click(runHandler);
-        // $('#button-follow').click(followGateHandler);
+        $('#button-run').click(followGateHandler);
+        $('#button-follow-gate').click(followGateHandler);
     };
     
     var searchHandler = function (event) {
@@ -42,7 +42,7 @@ var dungeon = function() {
         event.preventDefault();
     };
     
-    var runHandler = function (event) {
+    var followGateHandler = function (event) {
         const option = $('#options-dialog')
             .children('form')
             .children('select')
