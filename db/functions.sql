@@ -604,7 +604,7 @@ BEGIN
     ) THEN
         RAISE 'cant search, enemies left';
     END IF;
-    IF (SELECT (D.current_bonusless_hp + room_hit_points_bonus) < 1 FROM dungeons AS D WHERE D."character" = character_id
+    IF (SELECT (D.current_bonusless_hp + room_hit_points_bonus) <= 1 FROM dungeons AS D WHERE D."character" = character_id
     ) THEN
         RAISE 'cant search, or die';
     END IF;
@@ -632,15 +632,16 @@ BEGIN
                 RI.hidden = TRUE
             ) UNION (
                 SELECT 'gate' AS type, G.id FROM gates AS G
-                WHERE G.room_from = (
-                    SELECT D.current_room FROM dungeons AS D
-                    WHERE D."character" = character_id
-                ) OR
-                G.room_to = (
-                    SELECT D.current_room FROM dungeons AS D
-                    WHERE D."character" = character_id
-                ) AND
-                G.hidden = TRUE
+                WHERE (
+                    G.room_from = (
+                        SELECT D.current_room FROM dungeons AS D
+                        WHERE D."character" = character_id
+                    ) OR
+                    G.room_to = (
+                        SELECT D.current_room FROM dungeons AS D
+                        WHERE D."character" = character_id
+                    )
+                ) AND G.hidden = TRUE
             )
         ) SELECT H.type, H.id FROM hiddens AS H
             OFFSET RANDOM() * (SELECT COUNT(*) FROM hiddens) LIMIT 1
