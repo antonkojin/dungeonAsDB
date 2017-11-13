@@ -22,10 +22,26 @@ var dungeon = function() {
         $('#button-end-dungeon').click(endDungeonHandler);
         $('#button-delete-user').click(deleteUserHandler);
         $('#button-attack').click(attackEnemyHandler);
-        // $('#button-search').click(searchHandler);
+        $('#button-search').click(searchHandler);
         $('#button-run').click(runHandler);
         // $('#button-follow').click(followGateHandler);
     };
+    
+    var searchHandler = function (event) {
+        api.get({
+            url: 'dungeon/search',
+            success: data => {
+                console.log(data);
+                window.alert(`
+                    roll: ${data.roll}
+                    id: ${data.id}
+                    type: ${data.type}
+                `);
+            }
+        });
+        event.preventDefault();
+    };
+    
     var runHandler = function (event) {
         const option = $('#options-dialog')
             .children('form')
