@@ -157,6 +157,11 @@ var dungeon = function() {
             $('#button-search').show();
             $('#button-run').hide();
             $('#button-follow-gate').show();
+        } else {
+            $('#button-attack').show();
+            $('#button-search').hide();
+            $('#button-run').show();
+            $('#button-follow-gate').hide();
         }
     };
 
