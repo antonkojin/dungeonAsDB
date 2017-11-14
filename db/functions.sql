@@ -423,6 +423,21 @@ BEGIN
 END;
 $$ LANGUAGE 'plpgsql';
 
+CREATE OR REPLACE FUNCTION kill_enemy() RETURNS TRIGGER AS $$
+BEGIN
+    DELETE FROM room_enemies AS RE
+    WHERE RE.id = NEW.id;
+    RETURN null;
+END;
+$$ LANGUAGE 'plpgsql';
+DROP TRIGGER IF EXISTS enemy_fight ON room_enemies CASCADE;
+CREATE TRIGGER enemy_fight
+    AFTER UPDATE OF current_hit_points ON room_enemies
+    FOR EACH ROW
+    WHEN (NEW.current_hit_points <= 0)
+    EXECUTE PROCEDURE kill_enemy();
+
+-- TODO: bug, fight with two enemies and dungeon gets incoherent
 DROP FUNCTION IF EXISTS fight_enemy(VARCHAR, INTEGER);
 CREATE FUNCTION fight_enemy(user_email VARCHAR(254), enemy_id INTEGER)
 RETURNS TABLE (
@@ -452,14 +467,15 @@ BEGIN
             ((characters.strength + characters.dexterity) / 2 + D.room_attack_bonus - enemies.defence) AS value,
             (floor(random() * 20) + 1) AS dice
         FROM characters JOIN character_items
-        ON characters.equipped_attack_item = character_items.id
+            ON characters.equipped_attack_item = character_items.id
         JOIN items
-        ON items.id = character_items.item
+            ON items.id = character_items.item
         JOIN dungeons AS D
-        ON D."character" = characters.id
-        JOIN room_enemies ON room_enemies.id = enemy_id
+            ON D."character" = characters.id
+        JOIN room_enemies
+            ON room_enemies.id = enemy_id
         JOIN enemies
-        ON room_enemies.enemy = enemies.id
+            ON room_enemies.enemy = enemies.id
         WHERE characters."user" = user_email
         LIMIT 1)
     UNION
@@ -470,13 +486,13 @@ BEGIN
             enemies.attack - ((characters.constitution + characters.dexterity) / 2 + D.room_defence_bonus) AS value,
             floor(random() * 20) + 1 AS dice
             FROM room_enemies JOIN enemies
-            ON room_enemies.enemy = enemies.id
+                ON room_enemies.enemy = enemies.id
             JOIN dungeons
-            ON room_enemies.room = dungeons.current_room
+                ON room_enemies.room = dungeons.current_room
             JOIN characters
-            ON dungeons."character" = characters.id
+                ON dungeons."character" = characters.id
             JOIN dungeons AS D
-            ON D."character" = characters.id
+                ON D."character" = characters.id
             WHERE characters."user" = user_email)
     ) AS R;
     UPDATE dungeons
@@ -488,26 +504,14 @@ BEGIN
                 AND fights.hit = true
             ),
             0
+        ) WHERE dungeons."character" = (
+            SELECT C.id FROM characters AS C WHERE C."user" = user_email
         );
-    FOR fight IN (
-        SELECT *
+    UPDATE room_enemies AS RE
+        SET current_hit_points = RE.current_hit_points - fights.damage
         FROM fights
-        WHERE fights."type" = 'attacking'
-        AND fights.hit = true
-    ) LOOP
-        IF (
-            SELECT room_enemies.current_hit_points
-            FROM room_enemies
-            WHERE room_enemies.id = fight.id
-        ) - fight.damage <= 0 THEN
-            DELETE FROM room_enemies
-            WHERE room_enemies.id = fight.id;
-        ELSE
-            UPDATE room_enemies
-            SET current_hit_points = room_enemies.current_hit_points - fight.damage
-            WHERE room_enemies.id = fight.id;
-        END IF;
-    END LOOP;
+        WHERE RE.id = fights.id
+        AND fights."type" = 'attacking' AND fights.hit;
     RETURN QUERY SELECT * FROM fights;
 END;
 $$ LANGUAGE 'plpgsql';
@@ -575,14 +579,15 @@ $$ LANGUAGE 'plpgsql';
 CREATE OR REPLACE FUNCTION reset_bonuses() RETURNS TRIGGER AS $$
 BEGIN
     UPDATE dungeons SET
-        (room_attack_bonus, room_defence_bonus, room_wisdom_bonus, room_hit_points_bonus) = (0,0,0,0);
+        (room_attack_bonus, room_defence_bonus, room_wisdom_bonus, room_hit_points_bonus) = (0,0,0,0)
+        WHERE dungeons.id = OLD.id ;
     RETURN NEW;
 END;
 $$ LANGUAGE 'plpgsql';
 
 DROP TRIGGER IF EXISTS room_changed ON dungeons CASCADE;
 CREATE TRIGGER room_changed AFTER UPDATE
-    ON dungeons
+    OF current_room ON dungeons
     FOR EACH ROW
     WHEN (NEW.current_room IS DISTINCT FROM OLD.current_room)
     EXECUTE PROCEDURE reset_bonuses();
