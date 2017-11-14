@@ -16,7 +16,7 @@ var dungeon = function() {
             redirect.redirect('dashboard');
         });
         getDungeonStatus().then(dungeonStatus => {
-            appendDungeonStatus(dungeonStatus);
+            updateDungeonStatus(dungeonStatus);
         });
         $('#button-logout').click(logoutHandler);
         $('#button-end-dungeon').click(endDungeonHandler);
@@ -31,7 +31,11 @@ var dungeon = function() {
         api.get({
             url: 'dungeon/search',
             success: data => {
-                getDungeonStatus().then(s => updateCharacterBag(s));
+                getDungeonStatus().then(s => {
+                    updateCharacter(s);
+                    updateCharacterBag(s);
+                    updateGates(s);
+                });
                 window.alert(`
                     roll: ${data.roll}
                     id: ${data.id}
@@ -73,7 +77,7 @@ var dungeon = function() {
                     url: `dungeon/gate/${gateToRunTo}`,
                     success: () => {
                         getDungeonStatus().then(dungeonStatus => {
-                            appendDungeonStatus(dungeonStatus);
+                            updateDungeonStatus(dungeonStatus);
                         });
                     }
                 });
@@ -249,6 +253,55 @@ var dungeon = function() {
             });
     };
     
+    var updateGates = function (dungeonStatus) {
+        const gateTemplate = $('#templates > .gate').clone();
+        $('#room-gates > .gate').remove();
+        dungeonStatus.room.gates
+            .map(jsonGate => {
+                const htmlGate = gateTemplate.clone();
+                htmlGate.children('.gate-id')
+                    .text(jsonGate.id);
+                htmlGate.children('.room-id')
+                    .text(jsonGate.room);
+                return htmlGate;
+            })
+            .forEach(htmlGate => {
+                htmlGate.appendTo('#room-gates');
+            });
+    };
+    
+    var updateRoomItems = function (dungeonStatus) {
+        const itemTemplate = $('#templates > .item').clone();
+        $('#room-items > .item').remove();
+        dungeonStatus.room.items
+            .map(jsonItem => {
+                const htmlItem = itemTemplate.clone();
+                htmlItem.children('.item-id')
+                    .text(jsonItem.id);
+                htmlItem.children('.item-name')
+                    .text(jsonItem.name);
+                htmlItem.children('.item-description')
+                    .text(jsonItem.description);
+                htmlItem.children('.item-attack')
+                    .text(jsonItem.attack);
+                htmlItem.children('.item-defence')
+                    .text(jsonItem.defence);
+                htmlItem.children('.item-hit-points')
+                    .text(jsonItem.hit_points);
+                htmlItem.children('.item-category')
+                    .text(jsonItem.category);
+                return htmlItem;
+            })
+            .forEach(htmlItem => {
+                htmlItem.appendTo('#room-items');
+            });
+    };
+    
+    var updateRoom = function (dungeonStatus) {
+        $('#room-id').text(dungeonStatus.room.id);
+        $('#room-description').text(dungeonStatus.room.description);
+    };
+    
     var deleteUserHandler = function() {
         api.del({
             url: 'user'
@@ -278,50 +331,11 @@ var dungeon = function() {
         });
     };
 
-    var appendDungeonStatus = function(dungeonStatus) {
-        const gateTemplate = $('#templates').children('.gate')
-            .clone();
-        const itemTemplate = $('#templates').children('.item')
-            .clone();
-        $('#room-id').text(dungeonStatus.room.id);
-        $('#room-description').text(dungeonStatus.room.description);
-        $('#room-gates > .gate').remove();
-        dungeonStatus.room.gates
-            .map(jsonGate => {
-                const htmlGate = gateTemplate.clone();
-                htmlGate.children('.gate-id')
-                    .text(jsonGate.id);
-                htmlGate.children('.room-id')
-                    .text(jsonGate.room);
-                return htmlGate;
-            })
-            .forEach(htmlGate => {
-                htmlGate.appendTo('#room-gates');
-            });
+    var updateDungeonStatus = function(dungeonStatus) {
+        updateRoom(dungeonStatus);
+        updateGates(dungeonStatus);
         updateEnemies(dungeonStatus);
-        $('#room-items > .item').remove();
-        dungeonStatus.room.items
-            .map(jsonItem => {
-                const htmlItem = itemTemplate.clone();
-                htmlItem.children('.item-id')
-                    .text(jsonItem.id);
-                htmlItem.children('.item-name')
-                    .text(jsonItem.name);
-                htmlItem.children('.item-description')
-                    .text(jsonItem.description);
-                htmlItem.children('.item-attack')
-                    .text(jsonItem.attack);
-                htmlItem.children('.item-defence')
-                    .text(jsonItem.defence);
-                htmlItem.children('.item-hit-points')
-                    .text(jsonItem.hit_points);
-                htmlItem.children('.item-category')
-                    .text(jsonItem.category);
-                return htmlItem;
-            })
-            .forEach(htmlItem => {
-                htmlItem.appendTo('#room-items');
-            });
+        updateRoomItems(dungeonStatus);
         updateCharacter(dungeonStatus);
         updateCharacterBag(dungeonStatus);
     };
