@@ -68,7 +68,6 @@ var api = function() {
             url: 'user',
             statusCode: {
                 200: function(data) {
-                    console.info('logged in');
                     nickname = data.nickname;
                     localStorage.setItem('email', email);
                     localStorage.setItem('password', password);
@@ -93,7 +92,6 @@ var api = function() {
                 );
             }
         };
-        console.info('ajax options: %o', options);
         return $.ajax(options);
     };
 
