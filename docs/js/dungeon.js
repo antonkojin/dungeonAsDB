@@ -58,20 +58,25 @@ var dungeon = function() {
             htmlGate.appendTo('#options-dialog select');
         });
         $('#options-dialog').show();
-        $('#options-dialog #button-dialog-cancel').click(() =>{
-            $('#options-dialog').hide();
-        });
-        $('#options-dialog #button-dialog-submit').click(e =>{
-            const gateToRunTo = $('#options-dialog select').val();
-            $('#options-dialog').hide();
-            api.get({
-                url: `dungeon/gate/${gateToRunTo}`,
-                success: () => {
-                    getDungeonStatus().then(dungeonStatus => {
-                        appendDungeonStatus(dungeonStatus);
-                    });
-                }
+        $('#options-dialog #button-dialog-cancel')
+            .off('click') // clear click event's handlers queue
+            .click(e => {
+                $('#options-dialog').hide();
+                e.preventDefault();
             });
+        $('#options-dialog #button-dialog-submit')
+            .off('click') // clear click event's handlers queue
+            .click(e => {
+                const gateToRunTo = $('#options-dialog select').val();
+                $('#options-dialog').hide();
+                api.get({
+                    url: `dungeon/gate/${gateToRunTo}`,
+                    success: () => {
+                        getDungeonStatus().then(dungeonStatus => {
+                            appendDungeonStatus(dungeonStatus);
+                        });
+                    }
+                });
             e.preventDefault();
         });
         event.preventDefault();
