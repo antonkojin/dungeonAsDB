@@ -31,7 +31,7 @@ var dungeon = function() {
         api.get({
             url: 'dungeon/search',
             success: data => {
-                // TODO: getDungeonStatus().then(s => updateCharacterBag(s));
+                getDungeonStatus().then(s => updateCharacterBag(s));
                 window.alert(`
                     roll: ${data.roll}
                     id: ${data.id}
@@ -228,6 +228,27 @@ var dungeon = function() {
             .text(dungeonStatus.character.room_hit_points_bonus);
     };
     
+    var updateCharacterBag = function (dungeonStatus) {
+        const itemTemplate = $('#templates > .item').clone();
+        $('#character-bag > .item').remove();
+        dungeonStatus.character.bag
+            .map(jsonItem => {
+                const htmlItem = itemTemplate.clone();
+                htmlItem.children('.item-id').text(jsonItem.id);
+                htmlItem.children('.item-name').text(jsonItem.name);
+                htmlItem.children('.item-description').text(jsonItem.description);
+                htmlItem.children('.item-attack').text(jsonItem.attack);
+                htmlItem.children('.item-defence').text(jsonItem.defence);
+                htmlItem.children('.item-wisdom').text(jsonItem.wisdom);
+                htmlItem.children('.item-hit-points').text(jsonItem.hit_points);
+                htmlItem.children('.item-category').text(jsonItem.category);
+                return htmlItem;
+            })
+            .forEach(htmlItem => {
+                htmlItem.appendTo('#character-bag');
+            });
+    };
+    
     var deleteUserHandler = function() {
         api.del({
             url: 'user'
@@ -302,23 +323,7 @@ var dungeon = function() {
                 htmlItem.appendTo('#room-items');
             });
         updateCharacter(dungeonStatus);
-        $('#character-bag > .item').remove();
-        dungeonStatus.character.bag
-            .map(jsonItem => {
-                const htmlItem = itemTemplate.clone();
-                htmlItem.children('.item-id').text(jsonItem.id);
-                htmlItem.children('.item-name').text(jsonItem.name);
-                htmlItem.children('.item-description').text(jsonItem.description);
-                htmlItem.children('.item-attack').text(jsonItem.attack);
-                htmlItem.children('.item-defence').text(jsonItem.defence);
-                htmlItem.children('.item-wisdom').text(jsonItem.wisdom);
-                htmlItem.children('.item-hit-points').text(jsonItem.hit_points);
-                htmlItem.children('.item-category').text(jsonItem.category);
-                return htmlItem;
-            })
-            .forEach(htmlItem => {
-                htmlItem.appendTo('#character-bag');
-            });
+        updateCharacterBag(dungeonStatus);
     };
 
     return {
