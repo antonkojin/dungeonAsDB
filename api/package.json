@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node app.js",
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.js",
+    "init-db": "node heroku_init_db.js",
+    "postinstall": "node heroku_init_db.js"
   },
   "author": "",
   "license": "ISC",
