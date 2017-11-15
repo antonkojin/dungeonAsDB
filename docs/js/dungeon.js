@@ -23,8 +23,90 @@ var dungeon = function() {
         $('#button-delete-user').click(deleteUserHandler);
         $('#button-attack').click(attackEnemyHandler);
         $('#button-search').click(searchHandler);
+        $('#button-pick').click(pickItemHandler);
+        $('#button-use').click(useItemHandler);
         $('#button-run').click(followGateHandler);
         $('#button-follow-gate').click(followGateHandler);
+    };
+    
+    var pickItemHandler = function (event) {
+        const option = $('#options-dialog > form > select > option')
+            .remove()
+            .first().clone();
+        dungeonStatus.room.items.map(jsonItem => {
+            return option.clone()
+                .val(jsonItem.id)
+                .text(`
+                    id: ${jsonItem.id},
+                    name: ${jsonItem.name}
+                `);
+        }).forEach(htmlItem => {
+            htmlItem.appendTo('#options-dialog select');
+        });
+        $('#options-dialog').show();
+        $('#options-dialog #button-dialog-cancel')
+            .off('click') // clear click event's handlers queue
+            .click(e => {
+                $('#options-dialog').hide();
+                e.preventDefault();
+            });
+        $('#options-dialog #button-dialog-submit')
+            .off('click') // clear click event's handlers queue
+            .click(e => {
+                const itemToPick = $('#options-dialog select').val();
+                $('#options-dialog').hide();
+                api.post({
+                    url: `dungeon/item/${itemToPick}`,
+                    success: () => {
+                        getDungeonStatus().then(dungeonStatus => {
+                            updateCharacterBag(dungeonStatus);
+                            updateRoomItems(dungeonStatus);
+                        });
+                    }
+                });
+            e.preventDefault();
+        });
+        event.preventDefault();
+    };
+    
+    var useItemHandler = function (event) {
+        const option = $('#options-dialog > form > select > option')
+            .remove()
+            .first().clone();
+        dungeonStatus.character.bag.map(jsonItem => {
+            return option.clone()
+                .val(jsonItem.id)
+                .text(`
+                    id: ${jsonItem.id},
+                    name: ${jsonItem.name}
+                `);
+        }).forEach(htmlItem => {
+            htmlItem.appendTo('#options-dialog select');
+        });
+        $('#options-dialog').show();
+        $('#options-dialog #button-dialog-cancel')
+            .off('click') // clear click event's handlers queue
+            .click(e => {
+                $('#options-dialog').hide();
+                e.preventDefault();
+            });
+        $('#options-dialog #button-dialog-submit')
+            .off('click') // clear click event's handlers queue
+            .click(e => {
+                const itemToUse = $('#options-dialog select').val();
+                $('#options-dialog').hide();
+                api.post({
+                    url: `dungeon/bag/${itemToUse}`,
+                    success: () => {
+                        getDungeonStatus().then(dungeonStatus => {
+                            updateCharacterBag(dungeonStatus);
+                            updateCharacter(dungeonStatus);
+                        });
+                    }
+                });
+            e.preventDefault();
+        });
+        event.preventDefault();
     };
     
     var searchHandler = function (event) {
@@ -159,11 +241,13 @@ var dungeon = function() {
         if (dungeonStatus.room.enemies.length == 0) {
             $('#button-attack').hide();
             $('#button-search').show();
+            $('#button-pick').show();
             $('#button-run').hide();
             $('#button-follow-gate').show();
         } else {
             $('#button-attack').show();
             $('#button-search').hide();
+            $('#button-pick').hide();
             $('#button-run').show();
             $('#button-follow-gate').hide();
         }
