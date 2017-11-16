@@ -458,7 +458,8 @@ class TestDungeonAsDB(unittest.TestCase):
             response.status_code,
             codes.ok
         )
-        updated_character = requests.get(url('dungeon'), auth=auth).json()['character']
+        updated_dungeon = requests.get(url('dungeon'), auth=auth).json()
+        updated_character = updated_dungeon['character']
         self.assertEqual(
             updated_character['attack'],
             character['attack'] + item['attack']
@@ -474,6 +475,9 @@ class TestDungeonAsDB(unittest.TestCase):
         self.assertEqual(
             updated_character['hit_points'],
             character['hit_points'] + item['hit_points']
+        )
+        self.assertTrue(
+            len(items) - 1 == len(updated_dungeon['character']['bag'])
         )
 
     def test_drop_bonus_on_room_change(self):

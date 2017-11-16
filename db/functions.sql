@@ -566,7 +566,8 @@ BEGIN
                 AND CI.id = character_item_id
             )
             WHERE dungeons."character" = character_id;
-            -- TODO: delete item from bag if consumable
+            DELETE FROM character_items AS CI
+                WHERE CI.id = character_item_id;
     WHEN 'defence' THEN
         UPDATE characters SET equipped_defence_item = character_item_id
         WHERE characters.id = character_id;
