@@ -380,6 +380,8 @@ var dungeon = function() {
                     .text(jsonItem.attack);
                 htmlItem.children('.item-defence')
                     .text(jsonItem.defence);
+                htmlItem.children('.item-wisdom')
+                    .text(jsonItem.wisdom);
                 htmlItem.children('.item-hit-points')
                     .text(jsonItem.hit_points);
                 htmlItem.children('.item-category')
