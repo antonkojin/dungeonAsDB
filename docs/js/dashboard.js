@@ -8,10 +8,20 @@ var dashboard = function() {
         }, function() {
             redirect.redirect('character');
         });
+        api.ifHasDungeon(function onYes() {
+            $('#button-start-dungeon').hide();
+            $('#button-continue-dungeon').show();
+            $('#button-end-dungeon').show();
+        }, function onNo() {
+            $('#button-continue-dungeon').hide();
+            $('#button-end-dungeon').hide();
+            $('#button-start-dungeon').show();
+        });
         $('#button-logout').click(logoutHandler);
         $('#button-delete-user').click(deleteUserHandler);
         $('#button-start-dungeon').click(startDungeonHandler);
         $('#button-continue-dungeon').click(continueDungeonHandler);
+        $('#button-end-dungeon').click(endDungeonHandler);
     };
 
     var continueDungeonHandler = function() {
@@ -36,6 +46,15 @@ var dashboard = function() {
     var logoutHandler = function() {
         api.logout();
         redirect.redirect('login');
+    };
+    
+    var endDungeonHandler = function() {
+        api.del({
+            url: 'dungeon'
+        });
+        $('#button-continue-dungeon').hide();
+        $('#button-end-dungeon').hide();
+        $('#button-start-dungeon').show();
     };
 
     return {
