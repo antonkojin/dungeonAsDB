@@ -494,10 +494,10 @@ class TestDungeonAsDB(unittest.TestCase):
         dungeon_status = requests.get(url('dungeon'), auth=auth).json()
         after_bonus_character = dungeon_status['character']
         gate_id = dungeon_status['room']['gates'][0]['id']
-        requests.get(
+        fights = requests.get(
             url('dungeon/gate/{gate_id}'.format(gate_id=gate_id)),
             auth=auth
-        )
+        ).json()
         after_gate_character = requests.get(url('dungeon'), auth=auth).json()['character']
         self.assertEqual(
             after_gate_character['attack'],
@@ -522,14 +522,6 @@ class TestDungeonAsDB(unittest.TestCase):
         self.assertNotEqual(
                 after_bonus_character['wisdom'],
                 before_bonus_character['wisdom']
-        )
-        self.assertEqual(
-                after_gate_character['hit_points'],
-                before_bonus_character['hit_points']
-        )
-        self.assertNotEqual(
-                after_bonus_character['hit_points'],
-                before_bonus_character['hit_points']
         )
 
     def search_wearable_item(self):

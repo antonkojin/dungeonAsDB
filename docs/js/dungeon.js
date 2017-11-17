@@ -157,10 +157,20 @@ var dungeon = function() {
                 $('#options-dialog').hide();
                 api.get({
                     url: `dungeon/gate/${gateToRunTo}`,
-                    success: () => {
+                    success: fights => {
                         getDungeonStatus().then(dungeonStatus => {
                             updateDungeonStatus(dungeonStatus);
                         });
+                        window.alert(fights.map(fight => {
+                            return `
+                                type: ${fight.type}
+                                hit: ${fight.hit}
+                                value: ${fight.value}
+                                dice: ${fight.dice}
+                                id: ${fight.id}
+                                damage: ${fight.damage}
+                            `;
+                        }));
                     }
                 });
             e.preventDefault();
@@ -184,10 +194,10 @@ var dungeon = function() {
             htmlEnemy.appendTo('#options-dialog select');
         });
         $('#options-dialog').show();
-        $('#options-dialog #button-dialog-cancel').click(() =>{
+        $('#options-dialog #button-dialog-cancel').off('click').click(() =>{
             $('#options-dialog').hide();
         });
-        $('#options-dialog #button-dialog-submit').click(e =>{
+        $('#options-dialog #button-dialog-submit').off('click').click(e =>{
             const enemyToFight = $('#options-dialog select').val();
             $('#options-dialog').hide();
             api.post({

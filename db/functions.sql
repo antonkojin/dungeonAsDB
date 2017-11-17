@@ -392,13 +392,23 @@ CREATE FUNCTION end_dungeon(user_email VARCHAR(254)) RETURNS VOID AS $$
 $$ LANGUAGE 'sql';
 
 DROP FUNCTION IF EXISTS follow_gate(VARCHAR, INTEGER);
-CREATE FUNCTION follow_gate(user_email VARCHAR(254), gate_id INTEGER) RETURNS VOID AS $$
+CREATE FUNCTION follow_gate(user_email VARCHAR(254), gate_id INTEGER)
+RETURNS TABLE (
+    type VARCHAR,
+    id INTEGER,
+    damage SMALLINT,
+    value SMALLINT,
+    dice SMALLINT,
+    hit BOOLEAN
+) AS $$
 DECLARE
     room_over_gate INTEGER;
     user_character INTEGER;
     user_dungeon INTEGER;
     user_current_room INTEGER;
 BEGIN
+    CREATE TEMP TABLE run_away_fights ON COMMIT DROP AS
+        SELECT * FROM fight_enemy(user_email, NULL);
     SELECT characters.id
         FROM characters
         WHERE characters."user" = user_email
@@ -420,6 +430,7 @@ BEGIN
     UPDATE dungeons SET
         current_room = room_over_gate
         WHERE dungeons."character" = user_character;
+    RETURN QUERY SELECT * FROM run_away_fights;
 END;
 $$ LANGUAGE 'plpgsql';
 
