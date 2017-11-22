@@ -231,6 +231,26 @@ RETURNS void AS $$
     END;
 $$ LANGUAGE 'plpgsql';
 
+-- TODO: update dungeon XP while killing enemies and visiting rooms
+CREATE OR REPLACE FUNCTION kill_character() RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE characters AS C SET
+        experience_points = C.experience_points + D.experience_points
+        FROM dungeons AS D 
+        WHERE D."character" = NEW."character"
+        AND C.id = NEW."character";
+    DELETE FROM dungeons
+        WHERE dungeons.id = NEW.id;
+    RETURN NULL;
+END;
+$$ LANGUAGE 'plpgsql';
+DROP TRIGGER IF EXISTS character_death ON dungeons CASCADE;
+CREATE TRIGGER character_death
+    AFTER UPDATE OF current_bonusless_hp ON dungeons
+    FOR EACH ROW
+    WHEN (NEW.current_bonusless_hp <= 0)
+    EXECUTE PROCEDURE kill_character();
+
 DROP FUNCTION IF EXISTS get_character(VARCHAR);
 CREATE FUNCTION get_character(user_email VARCHAR(254)) 
 RETURNS TABLE(

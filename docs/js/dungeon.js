@@ -29,10 +29,19 @@ var dungeon = function() {
         $('#button-follow-gate').click(followGateHandler);
     };
     
+    // TODO: when click on pick item and theres no items,
+    // no one can repopulate the options
+    // the options are all gone
     var pickItemHandler = function (event) {
         const option = $('#options-dialog > form > select > option')
             .remove()
             .first().clone();
+        if (dungeonStatus.room.items.length == 0) {
+            option.clone()
+                .val('')
+                .text('')
+                .appendTo('#options-dialog select');
+        }
         dungeonStatus.room.items.map(jsonItem => {
             return option.clone()
                 .val(jsonItem.id)

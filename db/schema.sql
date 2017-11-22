@@ -55,6 +55,7 @@ CREATE TABLE characters (
 	id SERIAL PRIMARY KEY,
 	name VARCHAR(20) NOT NULL,
 	description VARCHAR,
+    experience_points INTEGER NOT NULL DEFAULT 0,
 	strength SMALLINT NOT NULL CHECK (strength >= 3 AND strength <= 18),
 	intellect SMALLINT NOT NULL CHECK (strength >= 3 AND strength <= 18),
 	dexterity SMALLINT NOT NULL CHECK (strength >= 3 AND strength <= 18),
@@ -89,7 +90,8 @@ CREATE TABLE dungeons (
 	room_wisdom_bonus SMALLINT NOT NULL DEFAULT 0,
 	room_hit_points_bonus SMALLINT NOT NULL DEFAULT 0,
 	current_room INTEGER REFERENCES rooms(id),
-	final_room INTEGER REFERENCES rooms(id)
+	final_room INTEGER REFERENCES rooms(id),
+    experience_points INTEGER NOT NULL DEFAULT 0
 );
 
 ALTER TABLE rooms ADD CONSTRAINT rooms_dungeon_fkey FOREIGN KEY (dungeon) REFERENCES dungeons(id) ON DELETE CASCADE;
